@@ -1,7 +1,9 @@
 #include "bios.h"
+#include "e820.h"
 #include "pci.h"
 #include "string.h"
 #include "segment.h"
+#include "fw_cfg.h"
 
 #define PCI_VENDOR_ID_INTEL		0x8086
 #define PCI_DEVICE_ID_INTEL_82441	0x1237
@@ -77,13 +79,28 @@ static void setup_idt(void)
 	set_realmode_int(0x15, bios_int15);
 }
 
+static void extract_e820(void)
+{
+	int id = fw_cfg_file_id("etc/e820");
+	uint32_t size;
+
+	if (id == -1)
+		panic();
+
+	size = fw_cfg_file_size(id);
+	e820.nr_map = size / sizeof(e820.map[0]);
+	fw_cfg_file_select(id);
+	fw_cfg_read(&e820.map, size);
+}
+
 int main(void)
 {
 	make_bios_writable();
 	setup_pic();
 	setup_idt();
+	fw_cfg_setup();
 	// extract_acpi();
-	// extract_e820();
+	extract_e820();
 	// extract_smbios();
 	// extract_kernel();
 	// make_bios_readonly();

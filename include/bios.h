@@ -38,6 +38,8 @@ extern void bios_int15(void);
 
 extern struct e820map e820;
 
+#define ARRAY_SIZE(x)	(sizeof(x) / sizeof(x[0]))
+
 static inline void __attribute__((noreturn)) panic(void)
 {
 	asm volatile("cli; hlt");

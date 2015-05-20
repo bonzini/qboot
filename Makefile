@@ -3,9 +3,11 @@ obj-y = $(obj16-y) entry.o main.o string.o printf.o cstart.o fw_cfg.o
 obj-y += linuxboot.o
 
 all-y = bios.bin
+all: $(all-y)
 
-CFLAGS := -O2 -Wall -g
+CFLAGS := -O2 -g
 
+BIOS_CFLAGS += $(autodepend-flags) -Wall
 BIOS_CFLAGS += -m32
 BIOS_CFLAGS += -march=i386
 BIOS_CFLAGS += -mregparm=3
@@ -14,7 +16,9 @@ BIOS_CFLAGS += -ffreestanding
 BIOS_CFLAGS += -Iinclude
 $(obj16-y): BIOS_CFLAGS += -include code16gcc.h
 
-all: $(all-y)
+dummy := $(shell mkdir -p .deps)
+autodepend-flags = -MMD -MF .deps/cc-$(patsubst %/,%,$(dir $*))-$(notdir $*).d
+-include .deps/*.d
 
 .PRECIOUS: %.o
 %.o: %.c
@@ -30,3 +34,4 @@ bios.bin: bios.bin.elf
 
 clean:
 	rm -f $(obj-y) $(all-y) bios.bin.elf
+	rm -rf .deps

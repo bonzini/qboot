@@ -1,10 +1,6 @@
 #include "bios.h"
 #include "segment.h"
-
-static inline void outb(unsigned short port, unsigned char val)
-{
-	asm volatile("outb %0, %1" : : "a"(val), "Nd"(port));
-}
+#include "ioport.h"
 
 /*
  * It's probably much more useful to make this print to the serial

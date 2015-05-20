@@ -84,12 +84,3 @@ ENTRY(bios_int15)
 
 	IRET
 ENTRY_END(bios_int15)
-
-ENTRY(real_entry)
-	cli
-	hlt
-ENTRY_END(real_entry)
-
-	ORG(fff0)
-	jmp	real_entry
-

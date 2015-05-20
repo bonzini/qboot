@@ -8,12 +8,12 @@ static inline uint32_t segment_to_flat(uint16_t selector, uint16_t offset)
 
 static inline uint16_t flat_to_seg16(uint32_t address)
 {
-	return address >> 4;
+	return (address >> 4) & 0xf000;
 }
 
-static inline uint16_t flat_to_off16(uint32_t address, uint32_t segment)
+static inline uint16_t flat_to_off16(uint32_t address)
 {
-	return address - (segment << 4);
+	return address & 65535;
 }
 
 #endif /* KVM_SEGMENT_H */

@@ -25,6 +25,7 @@ gdt32:
         .quad 0
         .quad 0x00cf9b000000ffff // flat 32-bit code segment
         .quad 0x00cf93000000ffff // flat 32-bit data segment
+        .quad 0x008f9b0f0000ffff // 16-bit code segment at 0xF0000
 gdt32_end:
 
 gdt32_descr:

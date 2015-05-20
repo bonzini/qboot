@@ -36,6 +36,8 @@ extern void bios_irq(void);
 extern void bios_int10(void);
 extern void bios_int15(void);
 
+extern void boot_linux(void);
+
 extern struct e820map e820;
 
 #define ARRAY_SIZE(x)	(sizeof(x) / sizeof(x[0]))

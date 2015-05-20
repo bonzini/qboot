@@ -1,5 +1,7 @@
 obj16-y = e820.o int10.o int15.o
 obj-y = $(obj16-y) entry.o main.o string.o printf.o cstart.o fw_cfg.o
+obj-y += linuxboot.o
+
 all-y = bios.bin
 
 CFLAGS := -O2 -Wall -g

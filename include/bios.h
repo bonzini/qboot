@@ -32,6 +32,7 @@ extern bioscall void int15_handler(struct biosregs *regs);
 extern bioscall void e820_query_map(struct biosregs *regs);
 
 extern void bios_intfake(void);
+extern void bios_irq(void);
 extern void bios_int10(void);
 extern void bios_int15(void);
 

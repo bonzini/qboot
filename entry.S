@@ -41,6 +41,14 @@
 	popl	%fs
 .endm
 
+ENTRY(bios_irq)
+	pushw	%ax
+	mov	$0x20, %al
+	out	%al, $0x20
+	popw	%ax
+	IRET
+ENTRY_END(bios_irq)
+
 /*
  * fake interrupt handler, nothing can be faster ever
  */

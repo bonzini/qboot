@@ -1,6 +1,7 @@
 #include "bios.h"
 #include "pci.h"
 #include "string.h"
+#include "segment.h"
 
 #define PCI_VENDOR_ID_INTEL		0x8086
 #define PCI_DEVICE_ID_INTEL_82441	0x1237
@@ -37,13 +38,31 @@ static void make_bios_writable(void)
 	memcpy(low_start, bios_start, 0x10000);
 }
 
+static void set_realmode_int(int vec, void *p)
+{
+	uint16_t *realmode_idt = (uint16_t *) 0;
+	realmode_idt[vec * 2] = flat_to_off16((uintptr_t) p);
+	realmode_idt[vec * 2 + 1] = flat_to_seg16((uintptr_t) p);
+}
+
+static void setup_idt(void)
+{
+	int i;
+	for (i = 0; i < 0x1f; i++)
+		set_realmode_int(i, bios_intfake);
+	set_realmode_int(0x10, bios_int10);
+	set_realmode_int(0x15, bios_int15);
+}
 
 int main(void)
 {
 	make_bios_writable();
+	setup_idt();
 	// extract_acpi();
+	// extract_e820();
 	// extract_smbios();
 	// extract_kernel();
+	// make_bios_readonly();
 	// boot_linux();
 	panic();
 }

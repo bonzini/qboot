@@ -2,6 +2,8 @@
 #define BIOS_H_
 
 #include <inttypes.h>
+#include <stddef.h>
+#include <stdbool.h>
 
 /*
  * When interfacing with assembler code we need to be sure how
@@ -37,6 +39,7 @@ extern void bios_int10(void);
 extern void bios_int15(void);
 
 extern void boot_from_fwcfg(void);
+extern bool boot_from_cbfs(void *base, size_t sz);
 
 extern uint16_t e820_seg;
 

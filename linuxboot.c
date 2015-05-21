@@ -1,19 +1,119 @@
 #include "bios.h"
-#include "ioport.h"
-#include "fw_cfg.h"
+#include "linuxboot.h"
+#include "string.h"
+#include "stdio.h"
 
-static void *_fw_cfg_read_blob(int faddr, int fsize, int fdata)
+static inline uint16_t lduw_p(void *p)
 {
-	void *addr;
-	int length;
+	uint16_t val;
+	memcpy(&val, p, 2);
+	return val;
+}
 
-	fw_cfg_select(faddr);
-	addr = (void *)fw_cfg_readl_le();
-	fw_cfg_select(fsize);
-	length = fw_cfg_readl_le();
-	fw_cfg_select(fdata);
-	fw_cfg_read(addr, length);
-	return addr;
+static inline uint32_t ldl_p(void *p)
+{
+	uint32_t val;
+	memcpy(&val, p, 4);
+	return val;
+}
+
+static inline void stw_p(void *p, uint16_t val)
+{
+	memcpy(p, &val, 2);
+}
+
+static inline void stl_p(void *p, uint32_t val)
+{
+	memcpy(p, &val, 4);
+}
+
+bool parse_bzimage(struct linuxboot_args *args)
+{
+	uint8_t *header = args->header;
+
+	uint32_t real_addr, cmdline_addr, prot_addr, initrd_addr;
+	uint32_t setup_size;
+	uint32_t initrd_max;
+	uint16_t protocol;
+
+	if (ldl_p(header+0x202) == 0x53726448)
+		protocol = lduw_p(header+0x206);
+	else {
+		// if (parse_multiboot(&args)) return;
+		protocol = 0;
+	}
+
+	if (protocol < 0x200 || !(header[0x211] & 0x01)) {
+		/* Low kernel */
+		real_addr    = 0x90000;
+		cmdline_addr = (0x9a000 - args->cmdline_size) & ~15;
+		prot_addr    = 0x10000;
+	} else if (protocol < 0x202) {
+		/* High but ancient kernel */
+		real_addr    = 0x90000;
+		cmdline_addr = (0x9a000 - args->cmdline_size) & ~15;
+		prot_addr    = 0x100000;
+	} else {
+		/* High and recent kernel */
+		real_addr    = 0x10000;
+		cmdline_addr = 0x20000;
+		prot_addr    = 0x100000;
+	}
+
+	if (protocol >= 0x203)
+		initrd_max = ldl_p(header+0x22c);
+	else
+		initrd_max = 0x37ffffff;
+
+	if (protocol >= 0x202)
+		stl_p(header+0x228, cmdline_addr);
+	else {
+		stw_p(header+0x20, 0xA33F);
+		stw_p(header+0x22, cmdline_addr-real_addr);
+	}
+
+	/* High nybble = B reserved for QEMU; low nybble is revision number.
+	 * If this code is substantially changed, you may want to consider
+	 * incrementing the revision. */
+	if (protocol >= 0x200)
+		header[0x210] = 0xB0;
+
+	/* heap */
+	if (protocol >= 0x201) {
+		header[0x211] |= 0x80;  /* CAN_USE_HEAP */
+		stw_p(header+0x224, cmdline_addr-real_addr-0x200);
+	}
+
+	if (args->initrd_size)
+		initrd_addr = (initrd_max - args->initrd_size) & ~4095;
+	else
+		initrd_addr = 0;
+	stl_p(header+0x218, initrd_addr);
+	stl_p(header+0x21c, args->initrd_size);
+
+	/* load kernel and setup */
+	setup_size = header[0x1f1];
+	if (setup_size == 0)
+		setup_size = 4;
+
+	args->setup_size = (setup_size+1)*512;
+	args->kernel_size = args->vmlinuz_size - setup_size;
+	args->initrd_addr = (void *)initrd_addr;
+	args->setup_addr = (void *)real_addr;
+	args->kernel_addr = (void *)prot_addr;
+	args->cmdline_addr = (void *)cmdline_addr;
+	return true;
+}
+
+void boot_bzimage(struct linuxboot_args *args)
+{
+	memcpy(args->setup_addr, args->header, sizeof(args->header));
+	asm volatile(
+	    "ljmp $0x18, $pm16_boot_linux - 0xf0000"
+	    : :
+	    "b" (((uintptr_t) args->setup_addr) >> 4),
+	    "d" (args->cmdline_addr - args->setup_addr - 16));
+        panic();
 }
 
 /* BX = address of data block
@@ -35,23 +135,3 @@ asm("pm16_boot_linux:"
 	    "xor %ebp, %ebp;"
 	    "lret;"
 	    ".code32");
-
-void boot_linux(void)
-{
-	void *setup_addr, *cmdline_addr;
-
-#define fw_cfg_read_blob(f) \
-	_fw_cfg_read_blob(f##_ADDR, f##_SIZE, f##_DATA)
-
-	setup_addr = fw_cfg_read_blob(FW_CFG_SETUP);
-	cmdline_addr = fw_cfg_read_blob(FW_CFG_CMDLINE);
-	fw_cfg_read_blob(FW_CFG_INITRD);
-	fw_cfg_read_blob(FW_CFG_KERNEL);
-
-	asm volatile(
-	    "ljmp $0x18, $pm16_boot_linux - 0xf0000"
-	    : :
-	    "b" (((uintptr_t) setup_addr) >> 4),
-	    "d" (cmdline_addr - setup_addr - 16));
-        panic();
-}

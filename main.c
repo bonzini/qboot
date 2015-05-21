@@ -104,6 +104,6 @@ int main(void)
 	// extract_smbios();
 	// extract_kernel();
 	// make_bios_readonly();
-	boot_linux();
+	boot_from_fwcfg();
 	panic();
 }

@@ -36,7 +36,7 @@ extern void bios_irq(void);
 extern void bios_int10(void);
 extern void bios_int15(void);
 
-extern void boot_linux(void);
+extern void boot_from_fwcfg(void);
 
 extern struct e820map e820;
 

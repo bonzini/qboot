@@ -149,8 +149,6 @@ int main(void)
 	// extract_acpi();
 	extract_e820();
 	// extract_smbios();
-	// extract_kernel();
-	// make_bios_readonly();
 	if (!detect_cbfs_and_boot())
 		boot_from_fwcfg();
 	panic();

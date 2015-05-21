@@ -1,0 +1,26 @@
+A simple x86 firmware that can boot Linux.  Usage:
+
+fw_cfg based example:
+
+$ qemu-kvm -bios bios.bin \
+  -kernel /boot/vmlinuz-4.0.3-300.fc22.x86_64 \
+  -serial mon:stdio -append 'console=ttyS0,115200,8n1'
+
+cbfs-based example (pflash isn't the definitive interface though):
+
+$ dd if=/dev/zero of=boot.bin bs=4096 count=1
+$ cbfstool cbfs.rom create -s 8m -B boot.bin  -m x86 -o 0x1000
+$ cbfstool cbfs.rom add -f /boot/vmlinuz-4.0.3-300.fc22.x86_64 -n vmlinuz -t raw
+$ echo 'console=ttyS0,115200,8n1' > cmdline
+$ cbfstool cbfs.rom add -f cmdline -n cmdline -t raw
+$ qemu-kvm -drive if=pflash,file=bios.bin,readonly=on \
+    -drive if=pflash,file=cbfs.rom,readonly=on \
+    -serial mon:stdio
+
+TODO:
+- ACPI tables
+- SMBIOS tables
+- Multiboot loading
+
+Example:
+

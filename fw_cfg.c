@@ -70,6 +70,9 @@ void boot_from_fwcfg(void)
 	fw_cfg_select(FW_CFG_SETUP_SIZE);
 	args.vmlinuz_size = kernel_size + fw_cfg_readl_le();
 
+	if (!args.vmlinuz_size)
+		return;
+
 	fw_cfg_select(FW_CFG_SETUP_DATA);
 	fw_cfg_read(args.header, sizeof(args.header));
 

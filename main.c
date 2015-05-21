@@ -128,8 +128,7 @@ static bool detect_cbfs_and_boot(void)
 	if (!base)
 		return false;
 
-	// return boot_from_cbfs(base, sz);
-	return false;
+	return boot_from_cbfs(base, sz);
 }
 
 int main(void)

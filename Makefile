@@ -1,5 +1,4 @@
-obj16-y = e820.o int10.o int15.o
-obj-y = $(obj16-y) entry.o main.o string.o printf.o cstart.o fw_cfg.o
+obj-y = code16.o entry.o main.o string.o printf.o cstart.o fw_cfg.o
 obj-y += linuxboot.o
 
 all-y = bios.bin
@@ -14,7 +13,6 @@ BIOS_CFLAGS += -mregparm=3
 BIOS_CFLAGS += -fno-stack-protector -fno-delete-null-pointer-checks
 BIOS_CFLAGS += -ffreestanding
 BIOS_CFLAGS += -Iinclude
-$(obj16-y): BIOS_CFLAGS += -include code16gcc.h
 
 dummy := $(shell mkdir -p .deps)
 autodepend-flags = -MMD -MF .deps/cc-$(patsubst %/,%,$(dir $*))-$(notdir $*).d

@@ -138,7 +138,7 @@ asm("pm16_boot_linux:"
 	    "mov %bx, %fs; mov %bx, %gs; mov %bx, %ss;"
 	    "mov %dx, %sp;"
 	    "add $0x20, %bx; pushw %bx;"    // push CS
-	    "xor %eax, %eax; pushw %ax;"    // push IP
+	    "pushw %ax;"                    // push IP
 	    "xor %ebx, %ebx;"
 	    "xor %ecx, %ecx;"
 	    "xor %edx, %edx;"

@@ -88,9 +88,19 @@ static void extract_e820(void)
 		panic();
 
 	size = fw_cfg_file_size(id);
-	e820.nr_map = size / sizeof(e820.map[0]);
+	e820.nr_map = size / sizeof(e820.map[0]) + 4;
 	fw_cfg_file_select(id);
-	fw_cfg_read(&e820.map, size);
+	e820.map[0] = (struct e820entry)
+		{ .addr = 0, .size = 639 * 1024, .type = E820_RAM }; /* low RAM */
+	e820.map[1] = (struct e820entry)
+		{ .addr = 639 * 1024, .size = 1024, .type = E820_RESERVED }; /* EBDA */
+	e820.map[2] = (struct e820entry)
+		{ .addr = 0xe0000, .size = 64 * 1024, .type = E820_NVS }; /* ACPI tables */
+	e820.map[3] = (struct e820entry)
+		{ .addr = 0xf0000, .size = 64 * 1024, .type = E820_RESERVED }; /* firmware */
+	fw_cfg_read(&e820.map[4], size);
+	e820.map[4].addr = 1024 * 1024;
+	e820.map[4].size -= 1024 * 1024;
 }
 
 int main(void)

@@ -11,7 +11,8 @@ struct fw_cfg_file {
 	char name[57];
 };
 
-static struct fw_cfg_file files[32];
+static int filecnt;
+static struct fw_cfg_file *files;
 
 void fw_cfg_setup(void)
 {
@@ -19,8 +20,8 @@ void fw_cfg_setup(void)
 
 	fw_cfg_select(FW_CFG_FILE_DIR);
 	n = fw_cfg_readl_be();
-	if (n > ARRAY_SIZE(files))
-		n = ARRAY_SIZE(files);
+	filecnt = n;
+	files = malloc_fseg(sizeof(files[0]) * n);
 
 	for (i = 0; i < n; i++) {
 		files[i].size = fw_cfg_readl_be();
@@ -34,7 +35,7 @@ int fw_cfg_file_id(char *name)
 {
 	int i;
 
-	for (i = 0; i < ARRAY_SIZE(files); i++)
+	for (i = 0; i < filecnt; i++)
 		if (!strcmp(name, files[i].name))
 			return i;
 

@@ -130,7 +130,9 @@ void boot_bzimage(struct linuxboot_args *args)
  */
 asm("pm16_boot_linux:"
 	    ".code16;"
-	    "mov $0, %eax; mov %eax, %cr0;"
+	    "mov $0x20, %ax; mov %ax, %ds; mov %ax, %es;"
+	    "mov %ax, %fs; mov %ax, %gs; mov %ax, %ss;"
+	    "xor %eax, %eax; mov %eax, %cr0;"
 	    "ljmpl $0xf000, $(1f - 0xf0000); 1:"
 	    "mov %bx, %ds; mov %bx, %es;"
 	    "mov %bx, %fs; mov %bx, %gs; mov %bx, %ss;"

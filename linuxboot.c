@@ -64,6 +64,8 @@ bool parse_bzimage(struct linuxboot_args *args)
 		initrd_max = ldl_p(header+0x22c);
 	else
 		initrd_max = 0x37ffffff;
+	if (initrd_max > lowmem - 1)
+		initrd_max = lowmem - 1;
 
 	if (protocol >= 0x202)
 		stl_p(header+0x228, cmdline_addr);

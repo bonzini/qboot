@@ -89,12 +89,16 @@ static void setup_idt(void)
 	set_realmode_int(0x15, bios_int15);
 }
 
+/* Top of memory below 4GB.  */
+uint32_t lowmem;
+
 static void extract_e820(void)
 {
 	int id = fw_cfg_file_id("etc/e820");
 	uint32_t size;
 	int nr_map;
 	struct e820map *e820;
+	int i;
 
 	if (id == -1)
 		panic();
@@ -114,8 +118,13 @@ static void extract_e820(void)
 	e820->map[3] = (struct e820entry)
 		{ .addr = 0xf0000, .size = 64 * 1024, .type = E820_RESERVED }; /* firmware */
 	fw_cfg_read(&e820->map[4], size);
-	e820->map[4].addr = 1024 * 1024;
-	e820->map[4].size -= 1024 * 1024;
+	for (i = 4; i < e820->nr_map; i++)
+		if (e820->map[i].addr == 0) {
+			lowmem = e820->map[i].size;
+			e820->map[i].addr = 1024 * 1024;
+			e820->map[i].size -= 1024 * 1024;
+			break;
+		}
 
 	e820_seg = ((uintptr_t) e820) >> 4;
 }

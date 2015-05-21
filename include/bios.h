@@ -42,6 +42,7 @@ extern void boot_from_fwcfg(void);
 extern bool boot_from_cbfs(void *base, size_t sz);
 
 extern uint16_t e820_seg;
+extern uint32_t lowmem;
 
 #define ARRAY_SIZE(x)	(sizeof(x) / sizeof(x[0]))
 

@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include "bios.h"
 #include "stdio.h"
 #include "e820.h"
@@ -5,6 +6,7 @@
 #include "string.h"
 #include "segment.h"
 #include "fw_cfg.h"
+#include "pflash.h"
 
 #define PCI_VENDOR_ID_INTEL		0x8086
 #define PCI_DEVICE_ID_INTEL_82441	0x1237
@@ -15,6 +17,9 @@
 
 static void make_bios_writable(void)
 {
+	// NOTE: this runs from ROM at 0xFFFF0000, so it is not possible to use any
+	// static data.
+
 	const int bdf = 0;
 	const uint8_t *bios_start = (uint8_t *)0xffff0000;
 	uint8_t *low_start = (uint8_t *)0xf0000;
@@ -39,6 +44,10 @@ static void make_bios_writable(void)
 	// We're still running from 0xffff0000
 	pci_config_writeb(bdf, pambase, 0x30);
 	memcpy(low_start, bios_start, 0x10000);
+
+	// Now go to the F-segment: we need to move away from flash area
+	// in order to probe CBFS!
+	asm("ljmp $0x8, $1f; 1:");
 }
 
 static void set_realmode_int(int vec, void *p)
@@ -111,6 +120,18 @@ static void extract_e820(void)
 	e820_seg = ((uintptr_t) e820) >> 4;
 }
 
+static bool detect_cbfs_and_boot(void)
+{
+	size_t sz;
+	void *base = pflash_base(1, &sz);
+
+	if (!base)
+		return false;
+
+	// return boot_from_cbfs(base, sz);
+	return false;
+}
+
 int main(void)
 {
 	make_bios_writable();
@@ -122,6 +143,7 @@ int main(void)
 	// extract_smbios();
 	// extract_kernel();
 	// make_bios_readonly();
-	boot_from_fwcfg();
+	if (!detect_cbfs_and_boot())
+		boot_from_fwcfg();
 	panic();
 }

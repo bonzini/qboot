@@ -5,6 +5,8 @@ ENTRY(pm_entry)
 	xor %ax, %ax
 	mov %ax, %ds
 	mov %ax, %es
+	mov %ax, %fs
+	mov %ax, %gs
 	mov %ax, %ss
 	mov $0x7c00, %sp
 
@@ -18,6 +20,8 @@ ENTRY(pm_entry)
 	mov $16, %ax
 	mov %ax, %ds
 	mov %ax, %es
+	mov %ax, %fs
+	mov %ax, %gs
 	mov %ax, %ss
 	ljmp $8, $0xffff0000
 

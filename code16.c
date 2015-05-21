@@ -1,4 +1,5 @@
 asm(".code16gcc");
+#include <stddef.h>
 #include "bios.h"
 #include "segment.h"
 #include "ioport.h"
@@ -23,32 +24,40 @@ static inline uint32_t rdfs32(unsigned long addr)
 {
 	uint32_t v;
 
-	asm volatile("addr32 movl %%fs:%1,%0" : "=q" (v) : "m" (*(uint32_t *)addr));
+	asm volatile("addr32 movl %%fs:%1,%0" : "=r" (v) : "m" (*(uint32_t *)addr));
 
 	return v;
 }
 
-struct e820map e820;
+static inline uint16_t rdcs16(void *p)
+{
+	uint32_t addr = ((uintptr_t) p) & 65535;
+	uint16_t v;
+
+	asm volatile("addr32 movw %%cs:%1,%0" : "=r" (v) : "m" (*(uint32_t *)addr));
+
+	return v;
+}
+
+uint16_t e820_seg;
 
 bioscall void e820_query_map(struct biosregs *regs)
 {
 	uint32_t map_size;
-	uint16_t fs_seg;
 	uint32_t ndx;
 
-	fs_seg		= flat_to_seg16((uintptr_t) &e820);
-	set_fs(fs_seg);
+	set_fs(rdcs16(&e820_seg));
 
 	ndx		= regs->ebx;
 
-	map_size	= rdfs32(flat_to_off16((uintptr_t) &e820.nr_map));
+	map_size	= rdfs32(offsetof(struct e820map, nr_map));
 
 	if (ndx < map_size) {
 		uint32_t start;
 		unsigned int i;
 		uint8_t *p;
 
-		start	= flat_to_off16((uintptr_t)&e820.map[ndx]);
+		start	= flat_to_off16(offsetof(struct e820map, map[ndx]));
 
 		p	= (void *) regs->edi;
 

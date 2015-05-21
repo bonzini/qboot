@@ -38,7 +38,7 @@ extern void bios_int15(void);
 
 extern void boot_from_fwcfg(void);
 
-extern struct e820map e820;
+extern uint16_t e820_seg;
 
 #define ARRAY_SIZE(x)	(sizeof(x) / sizeof(x[0]))
 

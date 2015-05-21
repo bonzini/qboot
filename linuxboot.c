@@ -1,5 +1,6 @@
 #include "bios.h"
 #include "linuxboot.h"
+#include "ioport.h"
 #include "string.h"
 #include "stdio.h"
 
@@ -110,6 +111,12 @@ bool parse_bzimage(struct linuxboot_args *args)
 void boot_bzimage(struct linuxboot_args *args)
 {
 	memcpy(args->setup_addr, args->header, sizeof(args->header));
+#ifdef BENCHMARK_HACK
+	/* Exit just before getting to vmlinuz, so that it is easy
+	 * to time/profile the firmware.
+	 */
+	outb(0xf4, 1);
+#endif
 	asm volatile(
 	    "ljmp $0x18, $pm16_boot_linux - 0xf0000"
 	    : :

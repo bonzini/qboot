@@ -34,7 +34,7 @@ fw_cfg based example:
 cbfs-based example (pflash isn't the definitive interface though):
 
     $ dd if=/dev/zero of=boot.bin bs=4096 count=1
-    $ cbfstool cbfs.rom create -s 8m -B boot.bin  -m x86 -o 0x1000
+    $ cbfstool cbfs.rom create -s 8128k -B boot.bin  -m x86 -o 0x1000
     $ cbfstool cbfs.rom add -f /boot/vmlinuz-4.0.3-300.fc22.x86_64 -n vmlinuz -t raw
     $ echo 'console=ttyS0,115200,8n1' > cmdline
     $ cbfstool cbfs.rom add -f cmdline -n cmdline -t raw

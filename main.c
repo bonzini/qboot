@@ -29,13 +29,13 @@ static void setup_idt(void)
 
 /* Top of memory below 4GB.  */
 uint32_t lowmem;
+struct e820map *e820;
 
 static void extract_e820(void)
 {
 	int id = fw_cfg_file_id("etc/e820");
 	uint32_t size;
 	int nr_map;
-	struct e820map *e820;
 	int i;
 
 	if (id == -1)

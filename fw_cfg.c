@@ -1,9 +1,11 @@
 #include "bios.h"
+#include "e820.h"
 #include "stdio.h"
 #include "ioport.h"
 #include "string.h"
 #include "fw_cfg.h"
 #include "linuxboot.h"
+#include "multiboot.h"
 
 struct fw_cfg_file {
 	uint32_t size;
@@ -54,6 +56,55 @@ void fw_cfg_file_select(int id)
 	fw_cfg_select(files[id].select);
 }
 
+/* Multiboot trampoline.  QEMU does the ELF parsing.  */
+
+static void boot_multiboot_from_fw_cfg(void)
+{
+	void *kernel_addr, *kernel_entry;
+	struct mb_info *mb;
+	struct mb_mmap_entry *mbmem;
+	int i;
+	uint32_t sz;
+
+	fw_cfg_select(FW_CFG_KERNEL_SIZE);
+	sz = fw_cfg_readl_le();
+	if (!sz)
+		panic();
+
+	fw_cfg_select(FW_CFG_KERNEL_ADDR);
+	kernel_addr = (void *) fw_cfg_readl_le();
+	fw_cfg_select(FW_CFG_KERNEL_DATA);
+	fw_cfg_read(kernel_addr, sz);
+
+	fw_cfg_select(FW_CFG_INITRD_SIZE);
+	sz = fw_cfg_readl_le();
+	if (!sz)
+		panic();
+
+	fw_cfg_select(FW_CFG_INITRD_ADDR);
+	mb = (struct mb_info *) fw_cfg_readl_le();
+	fw_cfg_select(FW_CFG_INITRD_DATA);
+	fw_cfg_read(mb, sz);
+
+	mb->mem_lower = 639;
+	mb->mem_upper = (lowmem - 1048576) >> 10;
+
+	mb->mmap_length = 0;
+	for (i = 0; i < e820->nr_map; i++) {
+		mbmem = (struct mb_mmap_entry *) (mb->mmap_addr + mb->mmap_length);
+		mbmem->size = sizeof(e820->map[i]);
+		mbmem->base_addr = e820->map[i].addr;
+		mbmem->length = e820->map[i].size;
+		mbmem->type = e820->map[i].type;
+		mb->mmap_length += sizeof(*mbmem);
+	}
+
+	fw_cfg_select(FW_CFG_KERNEL_ENTRY);
+	kernel_entry = (void *) fw_cfg_readl_le();
+	asm volatile("jmp *%2" : : "a" (0x2badb002), "b"(mb), "c"(kernel_entry));
+	panic();
+}
+
 void boot_from_fwcfg(void)
 {
 	struct linuxboot_args args;
@@ -79,7 +130,7 @@ void boot_from_fwcfg(void)
 	fw_cfg_read(args.header, sizeof(args.header));
 
 	if (!parse_bzimage(&args))
-		return;
+		boot_multiboot_from_fw_cfg();
 
 	/* SETUP_DATA already selected */
 	if (args.setup_size > sizeof(args.header))

@@ -40,8 +40,9 @@ bool parse_bzimage(struct linuxboot_args *args)
 	if (ldl_p(header+0x202) == 0x53726448)
 		protocol = lduw_p(header+0x206);
 	else {
-		// if (parse_multiboot(&args)) return;
-		protocol = 0;
+		/* assume multiboot.  TODO: scan for header */
+		return false;
+		// protocol = 0;
 	}
 
 	if (protocol < 0x200 || !(header[0x211] & 0x01)) {

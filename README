@@ -46,4 +46,4 @@ TODO
 ====
 
 * SMBIOS tables
-* Multiboot loading
+* Multiboot loading from pflash

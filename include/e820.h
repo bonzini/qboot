@@ -29,6 +29,8 @@ struct e820map {
 	struct e820entry map[];
 };
 
+extern struct e820map *e820;
+
 #define ISA_START_ADDRESS	0xa0000
 #define ISA_END_ADDRESS		0x100000
 

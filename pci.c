@@ -115,6 +115,7 @@ static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type)
 
 		/* Add PCI bridge device id for the recursive call.  */
 		addend += (bdf >> 3) & 0x1f;
+		pci_foreach(do_block_pci_bridges);
 		pci_foreach(do_setup_pci);
 		addend -= (bdf >> 3) & 0x1f;
 

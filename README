@@ -22,6 +22,20 @@ Most of QEMU's 500-700 ms startup time is spent:
   Right now only flash is supported. 350 ms are saved, bringing the startup
   time down to 60 ms.
 
+Compile qboot
+=============
+
+Clone the source:
+
+    $ git clone https://github.com/bonzini/qboot.git
+
+Compile the qboot firmware (you may need to install the relevant build
+time dependancies):
+
+    $ make
+
+The result will be a 64K file named bios.bin.
+
 Usage
 =====
 

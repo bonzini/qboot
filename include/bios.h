@@ -38,6 +38,7 @@ extern void bios_irq(void);
 extern void bios_int10(void);
 extern void bios_int15(void);
 
+extern void setup_pci(void);
 extern void setup_hw(void);
 extern void extract_acpi(void);
 extern void boot_from_fwcfg(void);

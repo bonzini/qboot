@@ -86,6 +86,7 @@ int main(void)
 	// in order to probe CBFS!
 	asm("ljmp $0x8, $1f; 1:");
 
+	setup_pci();
 	setup_idt();
 	fw_cfg_setup();
 	extract_acpi();

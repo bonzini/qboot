@@ -56,10 +56,6 @@ static void setup_ich9_pm(void)
 	pci_config_writeb(bdf, ICH9_LPC_ACPI_CTRL, 0x80);
 }
 
-#define PCI_VENDOR_ID_INTEL		0x8086
-#define PCI_DEVICE_ID_INTEL_82441	0x1237
-#define PCI_DEVICE_ID_INTEL_Q35_MCH     0x29c0
-
 #define I440FX_PAM0                     0x59
 #define Q35_HOST_BRIDGE_PAM0            0x90
 

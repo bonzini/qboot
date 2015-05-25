@@ -1,5 +1,5 @@
 obj-y = code16.o entry.o main.o string.o printf.o cstart.o fw_cfg.o
-obj-y += linuxboot.o malloc.o pflash.o cbfs.o tables.o
+obj-y += linuxboot.o malloc.o pflash.o cbfs.o tables.o hwsetup.o
 
 all-y = bios.bin
 all: $(all-y)

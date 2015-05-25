@@ -45,6 +45,5 @@ cbfs-based example (pflash isn't the definitive interface though):
 TODO
 ====
 
-* ACPI tables
 * SMBIOS tables
 * Multiboot loading

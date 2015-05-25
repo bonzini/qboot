@@ -44,6 +44,8 @@ int fw_cfg_file_id(char *name)
 
 uint32_t fw_cfg_file_size(int id)
 {
+	if (id == -1)
+		return 0;
 	return files[id].size;
 }
 

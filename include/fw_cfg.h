@@ -39,6 +39,8 @@
 #define FW_CFG_CTL			0x510
 #define FW_CFG_DATA			0x511
 
+#include "ioport.h"
+
 static inline void fw_cfg_select(uint16_t f)
 {
 	outw(FW_CFG_CTL, f);

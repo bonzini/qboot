@@ -114,7 +114,7 @@ static void extract_e820(void)
 	e820->map[1] = (struct e820entry)
 		{ .addr = 639 * 1024, .size = 1024, .type = E820_RESERVED }; /* EBDA */
 	e820->map[2] = (struct e820entry)
-		{ .addr = 0xe0000, .size = 64 * 1024, .type = E820_NVS }; /* ACPI tables */
+		{ .addr = 0xd0000, .size = 128 * 1024, .type = E820_NVS }; /* ACPI tables */
 	e820->map[3] = (struct e820entry)
 		{ .addr = 0xf0000, .size = 64 * 1024, .type = E820_RESERVED }; /* firmware */
 	fw_cfg_read(&e820->map[4], size);
@@ -146,7 +146,7 @@ int main(void)
 	setup_pic();
 	setup_idt();
 	fw_cfg_setup();
-	// extract_acpi();
+	extract_acpi();
 	extract_e820();
 	// extract_smbios();
 	if (!detect_cbfs_and_boot())

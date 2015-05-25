@@ -79,7 +79,7 @@ static void setup_pic(void)
 
     /* Set ELCR to IRQs 10 and 11 */
     outb(0x4d0, 0);
-    outb(0x4d0, 0x0c);
+    outb(0x4d1, 0x0c);
 }
 
 void setup_hw(void)

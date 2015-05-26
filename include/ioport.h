@@ -3,12 +3,12 @@
 
 static inline void outsb(unsigned short port, void *buf, int len)
 {
-	asm volatile("rep outsb %%ds:(%0), %3" : "+S" (buf), "+c" (len) : "m"(buf), "Nd"(port), "0" (buf), "1" (len));
+	asm volatile("rep outsb %%ds:(%0), %3" : "=S" (buf), "=c" (len) : "m"(buf), "Nd"(port), "0" (buf), "1" (len));
 }
 
 static inline void insb(void *buf, unsigned short port, int len)
 {
-	asm volatile("rep insb %3, %%es:(%0)" : "+D" (buf), "+c" (len), "=m"(buf) : "Nd"(port), "0" (buf), "1" (len));
+	asm volatile("rep insb %3, %%es:(%0)" : "=D" (buf), "=c" (len), "=m"(buf) : "Nd"(port), "0" (buf), "1" (len));
 }
 
 static inline unsigned char inb(unsigned short port)

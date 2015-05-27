@@ -78,7 +78,7 @@ static bool detect_cbfs_and_boot(void)
 	return boot_from_cbfs(base, sz);
 }
 
-int main(void)
+int __attribute__ ((section (".text.startup"))) main(void)
 {
 	setup_hw();
 

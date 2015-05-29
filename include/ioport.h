@@ -1,5 +1,5 @@
-#ifndef _IOPORT_H
-#define _IOPORT_H 1
+#ifndef BIOS_IOPORT_H
+#define BIOS_IOPORT_H 1
 
 static inline void outsb(unsigned short port, void *buf, int len)
 {

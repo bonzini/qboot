@@ -1,5 +1,5 @@
-#ifndef _FW_CFG_H
-#define _FW_CFG_H 1
+#ifndef BIOS_FW_CFG_H
+#define BIOS_FW_CFG_H 1
 
 // List of QEMU fw_cfg entries.  DO NOT ADD MORE.  (All new content
 // should be passed via the fw_cfg "file" interface.)

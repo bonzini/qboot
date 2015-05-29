@@ -1,5 +1,5 @@
-#ifndef _STRING_H
-#define _STRING_H
+#ifndef BIOS_STRING_H
+#define BIOS_STRING_H
 
 #include <stddef.h>
 

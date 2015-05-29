@@ -1,5 +1,5 @@
-#ifndef _PCI_H
-#define _PCI_H
+#ifndef BIOS_PCI_H
+#define BIOS_PCI_H
 
 #include "ioport.h"
 

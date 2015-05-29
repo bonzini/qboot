@@ -1,5 +1,5 @@
-#ifndef KVM_SEGMENT_H
-#define KVM_SEGMENT_H
+#ifndef BIOS_SEGMENT_H
+#define BIOS_SEGMENT_H
 
 static inline uint32_t segment_to_flat(uint16_t selector, uint16_t offset)
 {

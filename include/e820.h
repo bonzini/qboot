@@ -1,5 +1,5 @@
-#ifndef _UAPI_ASM_X86_E820_H
-#define _UAPI_ASM_X86_E820_H
+#ifndef BIOS_E820_H
+#define BIOS_E820_H
 
 #define SMAP    0x534d4150	/* ASCII "SMAP" */
 
@@ -41,4 +41,4 @@ extern struct e820map *e820;
 #define BIOS_ROM_END		0xffffffff
 
 
-#endif /* _UAPI_ASM_X86_E820_H */
+#endif /* BIOS_E820_H */

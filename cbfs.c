@@ -31,28 +31,28 @@ struct cbfs_file_header {
 
 struct cbfs_file {
 	uint32_t size;
-	void *buf;
+	const char *buf;
 	char name[57];
 	struct cbfs_file *next;
 };
 
 static struct cbfs_file *files;
 
-static inline uint32_t ldl_le_p(void *p)
+static inline uint32_t ldl_le_p(const void *p)
 {
 	uint32_t val;
 	memcpy(&val, p, 4);
 	return val;
 }
 
-static inline uint32_t ldl_be_p(void *p)
+static inline uint32_t ldl_be_p(const void *p)
 {
 	uint32_t val;
 	memcpy(&val, p, 4);
 	return __builtin_bswap32(val);
 }
 
-bool cbfs_setup(void *base, size_t sz)
+static bool cbfs_setup(const char *base, size_t sz)
 {
 	uint32_t ofs;
 	struct cbfs_header hdr;

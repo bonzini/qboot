@@ -99,6 +99,13 @@ static void boot_multiboot_from_fw_cfg(void)
 		mb->mmap_length += sizeof(*mbmem);
 	}
 
+#ifdef BENCHMARK_HACK
+	/* Exit just before getting to vmlinuz, so that it is easy
+	 * to time/profile the firmware.
+	 */
+	outb(0xf4, 1);
+#endif
+
 	fw_cfg_select(FW_CFG_KERNEL_ENTRY);
 	kernel_entry = (void *) fw_cfg_readl_le();
 	asm volatile("jmp *%2" : : "a" (0x2badb002), "b"(mb), "c"(kernel_entry));

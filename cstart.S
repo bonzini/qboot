@@ -11,7 +11,8 @@ ENTRY(pm_entry)
 	mov $0x7c00, %sp
 
         mov %cr0, %eax
-        or $1, %eax
+        and $~((1 << 30) | (1 << 29)), %eax   # clear CD and NW
+        or $1, %al
         mov %eax, %cr0
         lgdtl %cs:0xff80 + gdt32_descr - pm_entry
         ljmpl $8, $0xffffff80 + 2f - pm_entry

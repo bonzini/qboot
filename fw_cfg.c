@@ -73,8 +73,7 @@ static void boot_multiboot_from_fw_cfg(void)
 
 	fw_cfg_select(FW_CFG_KERNEL_ADDR);
 	kernel_addr = (void *) fw_cfg_readl_le();
-	fw_cfg_select(FW_CFG_KERNEL_DATA);
-	fw_cfg_read(kernel_addr, sz);
+	fw_cfg_read_entry(FW_CFG_KERNEL_DATA, kernel_addr, sz);
 
 	fw_cfg_select(FW_CFG_INITRD_SIZE);
 	sz = fw_cfg_readl_le();
@@ -83,8 +82,7 @@ static void boot_multiboot_from_fw_cfg(void)
 
 	fw_cfg_select(FW_CFG_INITRD_ADDR);
 	mb = (struct mb_info *) fw_cfg_readl_le();
-	fw_cfg_select(FW_CFG_INITRD_DATA);
-	fw_cfg_read(mb, sz);
+	fw_cfg_read_entry(FW_CFG_INITRD_DATA, mb, sz);
 
 	mb->mem_lower = 639;
 	mb->mem_upper = (lowmem - 1048576) >> 10;
@@ -145,14 +143,12 @@ void boot_from_fwcfg(void)
 			    args.setup_size - sizeof(args.header));
 
 	fw_cfg_select(FW_CFG_KERNEL_DATA);
-	fw_cfg_read(args.kernel_addr, kernel_size);
+	fw_cfg_read_entry(FW_CFG_KERNEL_DATA, args.kernel_addr, kernel_size);
 
-	fw_cfg_select(FW_CFG_CMDLINE_DATA);
-	fw_cfg_read(args.cmdline_addr, args.cmdline_size);
+	fw_cfg_read_entry(FW_CFG_CMDLINE_DATA, args.cmdline_addr, args.cmdline_size);
 
 	if (args.initrd_size) {
-		fw_cfg_select(FW_CFG_INITRD_DATA);
-		fw_cfg_read(args.initrd_addr, args.initrd_size);
+		fw_cfg_read_entry(FW_CFG_INITRD_DATA, args.initrd_addr, args.initrd_size);
 	}
 
 	boot_bzimage(&args);

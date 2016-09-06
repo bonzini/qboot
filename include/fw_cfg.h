@@ -103,7 +103,7 @@ static inline void fw_cfg_skip(int len)
 }
 
 static inline void
-fw_cfg_read_entry(void *buf, int e, int len)
+fw_cfg_read_entry(int e, void *buf, int len)
 {
 	fw_cfg_select(e);
 	fw_cfg_read(buf, len);
@@ -113,5 +113,12 @@ void fw_cfg_setup(void);
 int fw_cfg_file_id(char *name);
 uint32_t fw_cfg_file_size(int id);
 void fw_cfg_file_select(int id);
+
+static inline void
+fw_cfg_read_file(int id, void *buf, int len)
+{
+	fw_cfg_file_select(id);
+	fw_cfg_read(buf, len);
+}
 
 #endif

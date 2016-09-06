@@ -43,7 +43,6 @@ static void extract_e820(void)
 
 	size = fw_cfg_file_size(id);
 	nr_map = size / sizeof(e820->map[0]) + 4;
-	fw_cfg_file_select(id);
 
 	e820 = malloc(offsetof(struct e820map, map[nr_map]));
 	e820->nr_map = nr_map;
@@ -55,7 +54,7 @@ static void extract_e820(void)
 		{ .addr = 0xd0000, .size = 128 * 1024, .type = E820_NVS }; /* ACPI tables */
 	e820->map[3] = (struct e820entry)
 		{ .addr = 0xf0000, .size = 64 * 1024, .type = E820_RESERVED }; /* firmware */
-	fw_cfg_read(&e820->map[4], size);
+	fw_cfg_read_file(id, &e820->map[4], size);
 	for (i = 4; i < e820->nr_map; i++)
 		if (e820->map[i].addr == 0) {
 			lowmem = e820->map[i].size;

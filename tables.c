@@ -68,8 +68,7 @@ static void do_alloc(char *file, uint32_t align, uint8_t zone)
 	p = (char *)((uintptr_t)(p + align - 1) & -align);
 
 	set_file_addr(id, p);
-	fw_cfg_file_select(id);
-	fw_cfg_read(p, n);
+	fw_cfg_read_file(id, p, n);
 }
 
 static void do_ptr(char *dest, char *src, uint32_t offset, uint8_t size)
@@ -135,8 +134,7 @@ void extract_acpi(void)
 	if (!n)
 		return;
 
-	fw_cfg_file_select(id);
-	fw_cfg_read(script, n);
+	fw_cfg_read_file(id, script, n);
 
 	for (i = 0; i < ARRAY_SIZE(script); i++) {
 		struct loader_cmd *s = &script[i];

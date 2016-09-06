@@ -82,11 +82,25 @@ static void setup_pic(void)
     outb(0x4d1, 0x0c);
 }
 
+void setup_pam(int bdf, int pambase)
+{
+	int i;
+	for (i=0; i<6; i++) {
+		int pam = pambase + 1 + i;
+		pci_config_writeb(bdf, pam, 0x33);
+	}
+
+	// Make ram from 0xf0000-0x100000 read-write
+	pci_config_writeb(bdf, pambase, 0x30);
+}
+
 void setup_hw(void)
 {
 	const int bdf = 0;
 	const uint8_t *bios_start = &stext + 0xfff00000;
 	const uint8_t *init_start = &sinit + 0xfff00000;
+	volatile uint8_t *rom_check = &stext;
+	int rom_check_value;
 	int pambase;
 
         uint32_t id = pci_config_readl(bdf, 0);
@@ -102,15 +116,12 @@ void setup_hw(void)
 		panic();
 
 	// Make ram from 0xc0000-0xf0000 read-write
-	int i;
-	for (i=0; i<6; i++) {
-		int pam = pambase + 1 + i;
-		pci_config_writeb(bdf, pam, 0x33);
-	}
+	rom_check_value = *rom_check;
+	*rom_check = rom_check_value + 1;
+	if (*rom_check == rom_check_value)
+		setup_pam(bdf, pambase);
 
-	// Make ram from 0xf0000-0x100000 read-write and shadow BIOS
-	// We're still running from 0xffff0000
-	pci_config_writeb(bdf, pambase, 0x30);
+	// Shadow BIOS; we're still running from 0xffff0000
 	memcpy(&stext, bios_start, &edata - &stext);
 	memcpy(&sinit, init_start, &einit - &sinit);
 

@@ -88,6 +88,15 @@ void fw_cfg_dma(int control, void *buf, int len)
 	}
 }
 
+void fw_cfg_read(void *buf, int len)
+{
+	if (version & FW_CFG_VERSION_DMA) {
+		fw_cfg_dma(FW_CFG_DMA_CTL_READ, buf, len);
+	} else {
+		insb(buf, FW_CFG_DATA, len);
+	}
+}
+
 void
 fw_cfg_read_entry(int e, void *buf, int len)
 {
@@ -99,7 +108,7 @@ fw_cfg_read_entry(int e, void *buf, int len)
 		fw_cfg_dma(control, buf, len);
 	} else {
 		fw_cfg_select(e);
-		fw_cfg_read(buf, len);
+		insb(buf, FW_CFG_DATA, len);
 	}
 }
 

@@ -101,11 +101,6 @@ static inline uint32_t fw_cfg_readl_le(void)
 	return val;
 }
 
-static inline void fw_cfg_read(void *buf, int len)
-{
-	insb(buf, FW_CFG_DATA, len);
-}
-
 static inline void fw_cfg_skip(int len)
 {
 	while (len--)

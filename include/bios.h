@@ -47,6 +47,11 @@ extern bool boot_from_cbfs(void *base, size_t sz);
 extern uint16_t e820_seg;
 extern uint32_t lowmem;
 
+extern uint8_t stext;
+extern uint8_t edata;
+extern uint8_t sinit;
+extern uint8_t einit;
+
 #define ARRAY_SIZE(x)	(sizeof(x) / sizeof(x[0]))
 
 static inline void __attribute__((noreturn)) panic(void)

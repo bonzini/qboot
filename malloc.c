@@ -1,10 +1,8 @@
 #include <inttypes.h>
 #include "string.h"
+#include "bios.h"
 
-extern uint8_t edata;
 static uint8_t *fseg_base = &edata;
-
-extern uint8_t stext;
 static uint8_t *malloc_top = &stext;
 
 void *malloc(int n)

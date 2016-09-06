@@ -85,8 +85,8 @@ static void setup_pic(void)
 void setup_hw(void)
 {
 	const int bdf = 0;
-	const uint8_t *bios_start = (uint8_t *)0xffff0000;
-	uint8_t *low_start = (uint8_t *)0xf0000;
+	const uint8_t *bios_start = &stext + 0xfff00000;
+	const uint8_t *init_start = &sinit + 0xfff00000;
 	int pambase;
 
         uint32_t id = pci_config_readl(bdf, 0);
@@ -111,7 +111,8 @@ void setup_hw(void)
 	// Make ram from 0xf0000-0x100000 read-write and shadow BIOS
 	// We're still running from 0xffff0000
 	pci_config_writeb(bdf, pambase, 0x30);
-	memcpy(low_start, bios_start, 0x10000);
+	memcpy(&stext, bios_start, &edata - &stext);
+	memcpy(&sinit, init_start, &einit - &sinit);
 
 	setup_pic();
 }

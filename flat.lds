@@ -14,12 +14,14 @@ SECTIONS
     . = ALIGN(16);
     edata = .;
     . = 1024K - 128;
+    sinit = .;
     .init : {
 	*(.init);
 	. = 128 - 16;
         *(.resetvector);
 	. = 128;
     }
+    einit = .;
 }
 
 ENTRY(main)

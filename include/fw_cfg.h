@@ -36,8 +36,18 @@
 #define FW_CFG_IRQ0_OVERRIDE          (FW_CFG_ARCH_LOCAL + 2)
 #define FW_CFG_E820_TABLE             (FW_CFG_ARCH_LOCAL + 3)
 
-#define FW_CFG_CTL			0x510
-#define FW_CFG_DATA			0x511
+#define FW_CFG_VERSION                0x01
+#define FW_CFG_VERSION_DMA            0x02
+
+#define FW_CFG_DMA_CTL_ERROR          0x01
+#define FW_CFG_DMA_CTL_READ           0x02
+#define FW_CFG_DMA_CTL_SKIP           0x04
+#define FW_CFG_DMA_CTL_SELECT         0x08
+
+#define FW_CFG_CTL                    0x510
+#define FW_CFG_DATA                   0x511
+#define FW_CFG_DMA_ADDR_HIGH          0x514
+#define FW_CFG_DMA_ADDR_LOW           0x518
 
 #include "ioport.h"
 
@@ -102,23 +112,14 @@ static inline void fw_cfg_skip(int len)
 		inb(FW_CFG_DATA);
 }
 
-static inline void
-fw_cfg_read_entry(int e, void *buf, int len)
-{
-	fw_cfg_select(e);
-	fw_cfg_read(buf, len);
-}
-
 void fw_cfg_setup(void);
 int fw_cfg_file_id(char *name);
 uint32_t fw_cfg_file_size(int id);
 void fw_cfg_file_select(int id);
 
-static inline void
-fw_cfg_read_file(int id, void *buf, int len)
-{
-	fw_cfg_file_select(id);
-	fw_cfg_read(buf, len);
-}
+void fw_cfg_read(void *buf, int len);
+void fw_cfg_read_entry(int e, void *buf, int len);
+void fw_cfg_dma(int control, void *buf, int len);
+void fw_cfg_read_file(int e, void *buf, int len);
 
 #endif

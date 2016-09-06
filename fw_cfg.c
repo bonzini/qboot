@@ -4,6 +4,7 @@
 #include "ioport.h"
 #include "string.h"
 #include "fw_cfg.h"
+#include "bswap.h"
 #include "linuxboot.h"
 #include "multiboot.h"
 
@@ -13,12 +14,16 @@ struct fw_cfg_file {
 	char name[57];
 };
 
+static int version;
 static int filecnt;
 static struct fw_cfg_file *files;
 
 void fw_cfg_setup(void)
 {
 	int i, n;
+
+	fw_cfg_select(FW_CFG_ID);
+	version = fw_cfg_readl_le();
 
 	fw_cfg_select(FW_CFG_FILE_DIR);
 	n = fw_cfg_readl_be();
@@ -54,6 +59,48 @@ uint32_t fw_cfg_file_size(int id)
 void fw_cfg_file_select(int id)
 {
 	fw_cfg_select(files[id].select);
+}
+
+void fw_cfg_read_file(int id, void *buf, int len)
+{
+	fw_cfg_read_entry(files[id].select, buf, len);
+}
+
+struct fw_cfg_dma_descriptor {
+    uint32_t control;
+    uint32_t length;
+    uint64_t address;
+} __attribute__((packed));
+
+void fw_cfg_dma(int control, void *buf, int len)
+{
+	volatile struct fw_cfg_dma_descriptor dma;
+	uint32_t dma_desc_addr;
+
+	dma.control = bswap32(control);
+	dma.length = bswap32(len);
+	dma.address = bswap64((uintptr_t)buf);
+
+	dma_desc_addr = (uint32_t)&dma;
+	outl(FW_CFG_DMA_ADDR_LOW, bswap32(dma_desc_addr));
+	while (bswap32(dma.control) & ~FW_CFG_DMA_CTL_ERROR) {
+		asm("");
+	}
+}
+
+void
+fw_cfg_read_entry(int e, void *buf, int len)
+{
+	if (version & FW_CFG_VERSION_DMA) {
+		int control;
+		control = (e << 16);
+		control |= FW_CFG_DMA_CTL_SELECT;
+		control |= FW_CFG_DMA_CTL_READ;
+		fw_cfg_dma(control, buf, len);
+	} else {
+		fw_cfg_select(e);
+		fw_cfg_read(buf, len);
+	}
 }
 
 /* Multiboot trampoline.  QEMU does the ELF parsing.  */

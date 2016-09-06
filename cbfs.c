@@ -2,6 +2,7 @@
 #include "stdio.h"
 #include "ioport.h"
 #include "string.h"
+#include "bswap.h"
 #include "linuxboot.h"
 
 #define CBFS_HEADER_MAGIC    0x4F524243		// ORBC
@@ -37,20 +38,6 @@ struct cbfs_file {
 };
 
 static struct cbfs_file *files;
-
-static inline uint32_t ldl_le_p(const void *p)
-{
-	uint32_t val;
-	memcpy(&val, p, 4);
-	return val;
-}
-
-static inline uint32_t ldl_be_p(const void *p)
-{
-	uint32_t val;
-	memcpy(&val, p, 4);
-	return __builtin_bswap32(val);
-}
 
 static bool cbfs_setup(const char *base, size_t sz)
 {

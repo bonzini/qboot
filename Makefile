@@ -13,6 +13,7 @@ BIOS_CFLAGS += -march=i386
 BIOS_CFLAGS += -mregparm=3
 BIOS_CFLAGS += -fno-stack-protector -fno-delete-null-pointer-checks
 BIOS_CFLAGS += -ffreestanding
+BIOS_CFLAGS += -mstringop-strategy=rep_byte -minline-all-stringops
 BIOS_CFLAGS += -Iinclude
 
 dummy := $(shell mkdir -p .deps)

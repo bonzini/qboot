@@ -62,29 +62,6 @@ char *strstr(const char *s1, const char *s2)
     return NULL;
 }
 
-void *memset(void *s, int c, size_t n)
-{
-    size_t i;
-    char *a = s;
-
-    for (i = 0; i < n; ++i)
-        a[i] = c;
-
-    return s;
-}
-
-void *memcpy(void *dest, const void *src, size_t n)
-{
-    size_t i;
-    char *a = dest;
-    const char *b = src;
-
-    for (i = 0; i < n; ++i)
-        a[i] = b[i];
-
-    return dest;
-}
-
 int memcmp(const void *s1, const void *s2, size_t n)
 {
     const unsigned char *a = s1, *b = s2;

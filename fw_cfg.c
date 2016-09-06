@@ -11,7 +11,8 @@
 struct fw_cfg_file {
 	uint32_t size;
 	uint16_t select;
-	char name[57];
+	uint16_t unused;
+	char name[56];
 };
 
 static int version;
@@ -30,12 +31,28 @@ void fw_cfg_setup(void)
 	filecnt = n;
 	files = malloc_fseg(sizeof(files[0]) * n);
 
+	fw_cfg_read(files, sizeof(files[0]) * n);
 	for (i = 0; i < n; i++) {
-		files[i].size = fw_cfg_readl_be();
-		files[i].select = fw_cfg_readw_be();
-		fw_cfg_readw_be();
-		fw_cfg_read(files[i].name, sizeof(files[i].name) - 1);
+		struct fw_cfg_file *f = &files[i];
+		f->size = bswap32(f->size);
+		f->select = bswap16(f->select);
 	}
+}
+
+int filenamecmp(const char *a, const struct fw_cfg_file *f)
+{
+    int n = sizeof(f->name);
+    const char *b = f->name;
+    while (*a == *b) {
+        if (*a == '\0') {
+            break;
+        }
+        if (--n == 0) {
+            return *a;
+        }
+        ++a, ++b;
+    }
+    return *a - *b;
 }
 
 int fw_cfg_file_id(char *name)
@@ -43,7 +60,7 @@ int fw_cfg_file_id(char *name)
 	int i;
 
 	for (i = 0; i < filecnt; i++)
-		if (!strcmp(name, files[i].name))
+		if (!filenamecmp(name, &files[i]))
 			return i;
 
 	return -1;

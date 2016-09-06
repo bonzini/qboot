@@ -17,10 +17,10 @@ Most of QEMU's 500-700 ms startup time is spent:
 
 * in the BIOS.  qboot saves another 150 ms.
 
-* in fw_cfg.  This is fixed by putting kernel and initrd in a CoreBoot cbfs
-  image, and doing a memory copy from NVDIMM or flash instead of using fw_cfg.
-  Right now only flash is supported. 350 ms are saved, bringing the startup
-  time down to 60 ms.
+* in fw_cfg.  qboot can use the new DMA interface to fw_cfg from QEMU 2.7+.
+  Alternatively, kernel and initrd can be put in a CoreBoot cbfs image
+  stored in flash.  However, flash has a limit of 8 MB.  In either case
+  350 ms are saved, bringing the startup time down to 60 ms.
 
 Compile qboot
 =============
@@ -60,4 +60,5 @@ TODO
 ====
 
 * SMBIOS tables
-* Multiboot loading from pflash
+* Add the possibility to configure out PIC and PCI bridge initialization
+* Possibly drop cbfs support, superseded by fw_cfg DMA

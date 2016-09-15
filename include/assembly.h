@@ -3,13 +3,6 @@
 
 #define __ASSEMBLY__
 
-#define BIOS2FLAT(x)	((x) - _start + 0xf0000)
-#define BIOS2FLATROM(x)	((x) - _start + 0xffff0000)
-_start = 0
-
-#define ORG(x)	\
-	.section .fixedaddr._##x
-
 #define __ALIGN	.p2align 4, 0x90
 #define ENTRY(name)	\
 	__ALIGN;	\

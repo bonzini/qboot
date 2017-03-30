@@ -127,3 +127,31 @@ void setup_hw(void)
 
 	setup_pic();
 }
+
+#define Q35_HOST_BRIDGE_PCIEXBAREN      1
+#define Q35_HOST_BRIDGE_PCIEXBAR        0x60
+
+static void setup_q35_mmconfig(void)
+{
+	const int bdf = 0;
+	uint64_t addr = PCIE_MMCONFIG_BASE;
+	uint32_t upper = addr >> 32;
+	uint32_t lower = (addr & 0xffffffff) | Q35_HOST_BRIDGE_PCIEXBAREN;
+
+	pci_config_writel(bdf, Q35_HOST_BRIDGE_PCIEXBAR, 0);
+	pci_config_writel(bdf, Q35_HOST_BRIDGE_PCIEXBAR + 4, upper);
+	pci_config_writel(bdf, Q35_HOST_BRIDGE_PCIEXBAR, lower);
+}
+
+bool setup_mmconfig(void)
+{
+	const int bdf = 0;
+	uint32_t id = pci_config_readl(bdf, 0);
+
+	if (id == (PCI_VENDOR_ID_INTEL | (PCI_DEVICE_ID_INTEL_Q35_MCH << 16))) {
+		setup_q35_mmconfig();
+		return true;
+	}
+
+	return false;
+}

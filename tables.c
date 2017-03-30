@@ -57,15 +57,13 @@ static void do_alloc(char *file, uint32_t align, uint8_t zone)
 	if (id == -1)
 		panic();
 
-	if (align > 16)
-		n += align - 16;
+	if (align < 16)
+		align = 16;
 
 	if (zone == ALLOC_FSEG)
-		p = malloc_fseg(n);
+		p = malloc_fseg_align(n, align);
 	else
-		p = malloc(n);
-
-	p = (char *)((uintptr_t)(p + align - 1) & -align);
+		p = malloc_align(n, align);
 
 	set_file_addr(id, p);
 	fw_cfg_read_file(id, p, n);

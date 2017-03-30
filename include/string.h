@@ -23,7 +23,16 @@ static inline void *memcpy(void *dest, const void *src, size_t n)
 	return __builtin_memcpy(dest, src, n);
 }
 
-void *malloc(int n);
-void *malloc_fseg(int n);
+void *malloc_align(int n, int align);
+void *malloc_fseg_align(int n, int align);
 
+static inline void *malloc(int n)
+{
+	return malloc_align(n, 16);
+}
+
+static inline void *malloc_fseg(int n)
+{
+	return malloc_fseg_align(n, 16);
+}
 #endif

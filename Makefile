@@ -15,6 +15,7 @@ BIOS_CFLAGS += -fno-stack-protector -fno-delete-null-pointer-checks
 BIOS_CFLAGS += -ffreestanding
 BIOS_CFLAGS += -mstringop-strategy=rep_byte -minline-all-stringops
 BIOS_CFLAGS += -Iinclude
+BIOS_CFLAGS += -fno-pic
 
 dummy := $(shell mkdir -p .deps)
 autodepend-flags = -MMD -MF .deps/cc-$(patsubst %/,%,$(dir $*))-$(notdir $*).d

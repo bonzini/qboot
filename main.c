@@ -7,6 +7,7 @@
 #include "fw_cfg.h"
 #include "pflash.h"
 #include "pci.h"
+#include "benchmark.h"
 
 static void set_realmode_int(int vec, void *p)
 {
@@ -89,6 +90,9 @@ static bool detect_cbfs_and_boot(void)
 
 int __attribute__ ((section (".text.startup"))) main(void)
 {
+#ifdef BENCHMARK_HACK
+       outb(FW_EXIT_PORT, FW_START);
+#endif
 	setup_hw();
 
 	// Now go to the F-segment: we need to move away from flash area

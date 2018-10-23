@@ -7,6 +7,7 @@
 #include "bswap.h"
 #include "linuxboot.h"
 #include "multiboot.h"
+#include "benchmark.h"
 
 struct fw_cfg_file {
 	uint32_t size;
@@ -174,7 +175,7 @@ static void boot_multiboot_from_fw_cfg(void)
 	/* Exit just before getting to vmlinuz, so that it is easy
 	 * to time/profile the firmware.
 	 */
-	outb(0xf4, 1);
+	outb(LINUX_EXIT_PORT, LINUX_START_FWCFG);
 #endif
 
 	fw_cfg_select(FW_CFG_KERNEL_ENTRY);

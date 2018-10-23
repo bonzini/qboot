@@ -3,6 +3,7 @@
 #include "ioport.h"
 #include "string.h"
 #include "stdio.h"
+#include "benchmark.h"
 
 static inline uint16_t lduw_p(void *p)
 {
@@ -116,7 +117,7 @@ void boot_bzimage(struct linuxboot_args *args)
 	/* Exit just before getting to vmlinuz, so that it is easy
 	 * to time/profile the firmware.
 	 */
-	outb(0xf4, 1);
+	outb(LINUX_EXIT_PORT, LINUX_START_BOOT);
 #endif
 	asm volatile(
 	    "ljmp $0x18, $pm16_boot_linux - 0xf0000"

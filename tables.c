@@ -2,6 +2,9 @@
 #include "stdio.h"
 #include "fw_cfg.h"
 #include "string.h"
+#include "start_info.h"
+
+extern struct hvm_start_info start_info;
 
 struct loader_cmd {
 	uint32_t cmd;
@@ -67,6 +70,13 @@ static void do_alloc(char *file, uint32_t align, uint8_t zone)
 
 	set_file_addr(id, p);
 	fw_cfg_read_file(id, p, n);
+
+	/* For PVH boot, save the PA where the RSDP is stored */
+	if (zone == ALLOC_FSEG) {
+		if (!memcmp(p, "RSD PTR ", 8)) {
+			start_info.rsdp_paddr = (uintptr_t)id_to_addr(id);
+		}
+	}
 }
 
 static void do_ptr(char *dest, char *src, uint32_t offset, uint8_t size)

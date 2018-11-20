@@ -2,9 +2,12 @@
 #include "linuxboot.h"
 #include "memaccess.h"
 #include "ioport.h"
+#include "start_info.h"
 #include "string.h"
 #include "stdio.h"
 #include "benchmark.h"
+
+struct hvm_start_info start_info = {0};
 
 bool parse_bzimage(struct linuxboot_args *args)
 {

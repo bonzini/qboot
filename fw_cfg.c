@@ -6,8 +6,12 @@
 #include "fw_cfg.h"
 #include "bswap.h"
 #include "linuxboot.h"
+#include "memaccess.h"
 #include "multiboot.h"
 #include "benchmark.h"
+#include "start_info.h"
+
+extern struct hvm_start_info start_info;
 
 struct fw_cfg_file {
 	uint32_t size;
@@ -184,6 +188,66 @@ static void boot_multiboot_from_fw_cfg(void)
 	panic();
 }
 
+static void pvh_e820_setup()
+{
+	struct hvm_memmap_table_entry *pvh_e820p;
+	int i, pvh_e820_sz;
+
+	pvh_e820_sz = sizeof(struct hvm_memmap_table_entry) * e820->nr_map;
+
+	pvh_e820p = malloc(pvh_e820_sz);
+	memset(pvh_e820p, 0, pvh_e820_sz);
+
+	for (i = 0; i < e820->nr_map; i++) {
+		pvh_e820p[i].addr = e820->map[i].addr;
+		pvh_e820p[i].size = e820->map[i].size;
+		pvh_e820p[i].type = e820->map[i].type;
+	}
+	start_info.memmap_paddr = (uintptr_t)pvh_e820p;
+	start_info.memmap_entries = e820->nr_map;
+}
+
+static void boot_pvh_from_fw_cfg(void)
+{
+	void *kernel_entry;
+	uint32_t sz;
+	struct linuxboot_args args;
+	struct hvm_modlist_entry ramdisk_mod;
+
+	start_info.magic = XEN_HVM_START_MAGIC_VALUE;
+	start_info.version = 1;
+	start_info.flags = 0;
+	start_info.nr_modules = 1;
+	start_info.reserved = 0;
+
+	fw_cfg_select(FW_CFG_CMDLINE_SIZE);
+	args.cmdline_size = fw_cfg_readl_le();
+	args.cmdline_addr = malloc(args.cmdline_size);
+	fw_cfg_read_entry(FW_CFG_CMDLINE_DATA, args.cmdline_addr,
+			  args.cmdline_size);
+	start_info.cmdline_paddr = (uintptr_t)args.cmdline_addr;
+
+	/* Use this field for pvhboot. Not used by pvhboot otherwise */
+	fw_cfg_read_entry(FW_CFG_KERNEL_DATA, &ramdisk_mod,
+			  sizeof(ramdisk_mod));
+	ramdisk_mod.cmdline_paddr = (uintptr_t)&ramdisk_mod;
+	start_info.modlist_paddr = (uintptr_t)&ramdisk_mod;
+
+	pvh_e820_setup();
+
+	fw_cfg_select(FW_CFG_KERNEL_SIZE);
+	sz = fw_cfg_readl_le();
+	if (!sz)
+		panic();
+
+	fw_cfg_select(FW_CFG_KERNEL_ENTRY);
+	kernel_entry = (void *) fw_cfg_readl_le();
+
+	asm volatile("jmp *%2" : : "a" (0x2badb002),
+		     "b"(&start_info), "c"(kernel_entry));
+	panic();
+}
+
 void boot_from_fwcfg(void)
 {
 	struct linuxboot_args args;
@@ -208,8 +272,13 @@ void boot_from_fwcfg(void)
 	fw_cfg_select(FW_CFG_SETUP_DATA);
 	fw_cfg_read(args.header, sizeof(args.header));
 
-	if (!parse_bzimage(&args))
+	if (!parse_bzimage(&args)) {
+		uint8_t *header = args.header;
+
+		if (ldl_p(header) == 0x464c457f)  /* ELF magic */
+			boot_pvh_from_fw_cfg();
 		boot_multiboot_from_fw_cfg();
+	}
 
 	/* SETUP_DATA already selected */
 	if (args.setup_size > sizeof(args.header))

@@ -6,6 +6,8 @@ static uint16_t addend;
 static uint8_t bus, max_bus;
 static bool use_i440fx_routing;
 
+static void do_setup_pci_blocked(uint32_t bdf, uint32_t id, uint8_t type);
+
 static void pci_foreach(void(*fn)(uint32_t bdf, uint32_t id, uint8_t type))
 {
 	int d, f;
@@ -59,11 +61,9 @@ static void do_setup_pci_irq(uint32_t bdf, int pin)
 	pci_config_writeb(bdf, PCI_INTERRUPT_LINE, irq);
 }
 
-static void do_block_pci_bridges(uint32_t bdf, uint32_t id, uint8_t type)
+static void do_block_pci_bridges(uint32_t bdf, uint32_t id, uint8_t type,
+		uint16_t class)
 {
-	uint16_t class;
-
-	class = pci_config_readw(bdf, PCI_CLASS_DEVICE);
 	switch (class) {
 	case PCI_CLASS_BRIDGE_PCI:
 		/* prevent accidental access to unintended devices */
@@ -73,9 +73,9 @@ static void do_block_pci_bridges(uint32_t bdf, uint32_t id, uint8_t type)
 	}
 }
 
-static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type)
+static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type,
+		uint16_t class)
 {
-	uint16_t class;
 	uint8_t pin;
 	int save_bus;
 
@@ -91,7 +91,6 @@ static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type)
 				  ctl | PCI_BRIDGE_CTL_SERR);
 	}
 
-	class = pci_config_readw(bdf, PCI_CLASS_DEVICE);
 	switch (class) {
 	case PCI_CLASS_STORAGE_IDE:
 		pci_config_writel(bdf, 0x10, 0x1f0);
@@ -115,14 +114,22 @@ static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type)
 
 		/* Add PCI bridge device id for the recursive call.  */
 		addend += (bdf >> 3) & 0x1f;
-		pci_foreach(do_block_pci_bridges);
-		pci_foreach(do_setup_pci);
+		pci_foreach(do_setup_pci_blocked);
 		addend -= (bdf >> 3) & 0x1f;
 
 		pci_config_writeb(bdf, PCI_SUBORDINATE_BUS, max_bus);
 		bus = save_bus;
 		break;
 	}
+}
+
+static void do_setup_pci_blocked(uint32_t bdf, uint32_t id, uint8_t type)
+{
+	uint16_t class;
+
+	class = pci_config_readw(bdf, PCI_CLASS_DEVICE);
+	do_block_pci_bridges(bdf, id, type, class);
+	do_setup_pci(bdf, id, type, class);
 }
 
 void setup_pci(void)
@@ -137,6 +144,5 @@ void setup_pci(void)
 	else
 		panic();
 
-	pci_foreach(do_block_pci_bridges);
-	pci_foreach(do_setup_pci);
+	pci_foreach(do_setup_pci_blocked);
 }

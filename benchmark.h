@@ -9,5 +9,6 @@
 #define FW_START    1
 #define LINUX_START_FWCFG 2
 #define LINUX_START_BOOT  3
+#define LINUX_START_PVHBOOT  4
 
-#endif
+#endif /* BENCHMARK_H */

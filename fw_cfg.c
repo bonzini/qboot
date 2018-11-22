@@ -243,6 +243,12 @@ static void boot_pvh_from_fw_cfg(void)
 	fw_cfg_select(FW_CFG_KERNEL_ENTRY);
 	kernel_entry = (void *) fw_cfg_readl_le();
 
+#ifdef BENCHMARK_HACK
+	/* Exit just before jumping to vmlinux, so that it is easy
+	 * to time/profile the firmware.
+	 */
+	outb(LINUX_EXIT_PORT, LINUX_START_PVHBOOT);
+#endif
 	asm volatile("jmp *%2" : : "a" (0x2badb002),
 		     "b"(&start_info), "c"(kernel_entry));
 	panic();

@@ -9,7 +9,7 @@ Most of QEMU's 500-700 ms startup time is spent:
         --disable-seccomp --disable-{bzip2,snappy,lzo} --disable-usb-redir \
         --disable-libusb --disable-smartcard-nss --disable-libnfs  \
         --disable-libiscsi --disable-rbd  --disable-spice --disable-attr \
-        --disable-cap-ng --disable-linux-aio --disable-uuid --disable-brlapi \
+        --disable-cap-ng --disable-linux-aio --disable-brlapi \
         --disable-vnc-{jpeg,tls,sasl,png,ws} --disable-rdma --disable-bluez \
         --disable-fdt --disable-curl --disable-curses --disable-sdl \
         --disable-gtk  --disable-tpm --disable-vte --disable-vnc  \

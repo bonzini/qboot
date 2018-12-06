@@ -1,33 +1,10 @@
 #include "bios.h"
 #include "linuxboot.h"
+#include "memaccess.h"
 #include "ioport.h"
 #include "string.h"
 #include "stdio.h"
 #include "benchmark.h"
-
-static inline uint16_t lduw_p(void *p)
-{
-	uint16_t val;
-	memcpy(&val, p, 2);
-	return val;
-}
-
-static inline uint32_t ldl_p(void *p)
-{
-	uint32_t val;
-	memcpy(&val, p, 4);
-	return val;
-}
-
-static inline void stw_p(void *p, uint16_t val)
-{
-	memcpy(p, &val, 2);
-}
-
-static inline void stl_p(void *p, uint32_t val)
-{
-	memcpy(p, &val, 4);
-}
 
 bool parse_bzimage(struct linuxboot_args *args)
 {

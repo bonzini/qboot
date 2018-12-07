@@ -98,7 +98,7 @@ static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type)
 		/* prevent accidental access to unintended devices */
 		pci_config_writeb(bdf, PCI_SUBORDINATE_BUS, 0);
 		/*
-		 * linked list of bridges (inster at the head) used to
+		 * linked list of bridges (insert at the head) used to
 		 * initialize other busses with recursive call.
 		 *
 		 * bridge_head points to the head (dev, fun)

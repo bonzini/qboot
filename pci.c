@@ -3,8 +3,9 @@
 #include "pci.h"
 
 static uint16_t addend;
-static uint8_t bus, max_bus, bridge_head, bridge_last;
+static uint8_t bus, max_bus, bridge_head;
 static bool use_i440fx_routing;
+static int bridge_count;
 
 static void do_setup_pci_bus(void);
 
@@ -105,7 +106,8 @@ static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type)
 		 * PCI_SECONDARY_BUS points to the next bridge (dev, fun)
 		 */
 		pci_config_writeb(bdf, PCI_SECONDARY_BUS, bridge_head);
-		bridge_head = bridge_last = (uint8_t)(bdf & 0xFF);
+		bridge_head = (uint8_t)(bdf & 0xFF);
+		bridge_count++;
 		break;
 	}
 }
@@ -113,23 +115,19 @@ static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type)
 static void do_setup_pci_bus(void)
 {
 	uint8_t save_bus, next_head;
+	int i;
 
 	bridge_head = 0xFF;
-	bridge_last = 0;
+	bridge_count = 0;
 
 	/* Discover all PCI devices and block bridges */
 	pci_foreach(do_setup_pci);
-
-	/* Check if we found bridges on this bus */
-	if (bridge_head != bridge_last) {
-		return;
-	}
 
 	next_head = bridge_head;
 	save_bus = bus;
 
 	/* Configure bridges on this bus and recursively setup new busses */
-	do {
+	for (i = bridge_count; i > 0; i--) {
 		uint32_t bdf = (save_bus * 256) + next_head;
 
 		next_head = pci_config_readb(bdf, PCI_SECONDARY_BUS);
@@ -144,7 +142,7 @@ static void do_setup_pci_bus(void)
 		addend -= (bdf >> 3) & 0x1f;
 
 		pci_config_writeb(bdf, PCI_SUBORDINATE_BUS, max_bus);
-	} while (next_head != 0xFF);
+	}
 }
 
 void setup_pci(void)

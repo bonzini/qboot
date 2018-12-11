@@ -3,8 +3,11 @@
 #include "pci.h"
 
 static uint16_t addend;
-static uint8_t bus, max_bus;
+static uint8_t bus, max_bus, bridge_head;
 static bool use_i440fx_routing;
+static int bridge_count;
+
+static void do_setup_pci_bus(void);
 
 static void pci_foreach(void(*fn)(uint32_t bdf, uint32_t id, uint8_t type))
 {
@@ -59,25 +62,10 @@ static void do_setup_pci_irq(uint32_t bdf, int pin)
 	pci_config_writeb(bdf, PCI_INTERRUPT_LINE, irq);
 }
 
-static void do_block_pci_bridges(uint32_t bdf, uint32_t id, uint8_t type)
-{
-	uint16_t class;
-
-	class = pci_config_readw(bdf, PCI_CLASS_DEVICE);
-	switch (class) {
-	case PCI_CLASS_BRIDGE_PCI:
-		/* prevent accidental access to unintended devices */
-		pci_config_writeb(bdf, PCI_SECONDARY_BUS, 255);
-		pci_config_writeb(bdf, PCI_SUBORDINATE_BUS, 0);
-		break;
-	}
-}
-
 static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type)
 {
 	uint16_t class;
 	uint8_t pin;
-	int save_bus;
 
 	pin = pci_config_readb(bdf, PCI_INTERRUPT_PIN);
         if (pin != 0)
@@ -107,21 +95,51 @@ static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type)
 		break;
 
 	case PCI_CLASS_BRIDGE_PCI:
-		save_bus = bus;
 		pci_config_writeb(bdf, PCI_PRIMARY_BUS, bus);
+		/* prevent accidental access to unintended devices */
+		pci_config_writeb(bdf, PCI_SUBORDINATE_BUS, 0);
+		/*
+		 * Insert at the head of a linked list of bridges.
+		 * do_setup_pci_bus will use it later to initialize secondary
+		 * buses with a recursive call.
+		 */
+		pci_config_writeb(bdf, PCI_SECONDARY_BUS, bridge_head);
+		bridge_head = (uint8_t)(bdf & 0xFF);
+		bridge_count++;
+		break;
+	}
+}
+
+static void do_setup_pci_bus(void)
+{
+	uint8_t save_bus, next_head;
+	int i;
+
+	bridge_head = 0xFF;
+	bridge_count = 0;
+
+	/* Discover all PCI devices and block bridges */
+	pci_foreach(do_setup_pci);
+
+	next_head = bridge_head;
+	save_bus = bus;
+
+	/* Configure bridges on this bus and recursively setup new busses */
+	for (i = bridge_count; i > 0; i--) {
+		uint32_t bdf = (save_bus * 256) + next_head;
+
+		next_head = pci_config_readb(bdf, PCI_SECONDARY_BUS);
+
 		bus = ++max_bus;
 		pci_config_writeb(bdf, PCI_SECONDARY_BUS, bus);
 		pci_config_writeb(bdf, PCI_SUBORDINATE_BUS, 255);
 
 		/* Add PCI bridge device id for the recursive call.  */
 		addend += (bdf >> 3) & 0x1f;
-		pci_foreach(do_block_pci_bridges);
-		pci_foreach(do_setup_pci);
+		do_setup_pci_bus();
 		addend -= (bdf >> 3) & 0x1f;
 
 		pci_config_writeb(bdf, PCI_SUBORDINATE_BUS, max_bus);
-		bus = save_bus;
-		break;
 	}
 }
 
@@ -137,6 +155,5 @@ void setup_pci(void)
 	else
 		panic();
 
-	pci_foreach(do_block_pci_bridges);
-	pci_foreach(do_setup_pci);
+	do_setup_pci_bus();
 }

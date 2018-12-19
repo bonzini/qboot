@@ -35,4 +35,21 @@ bios.bin: bios.bin.elf
 
 clean:
 	rm -f $(obj-y) $(all-y) bios.bin.elf
+	rm -f cscope.* tags TAGS
 	rm -rf .deps
+
+.PHONY: cscope
+cscope:
+	rm -f cscope.*
+	find . -name "*.[chsS]" -print | sed 's,^\./,,' > cscope.files
+	cscope -b -i cscope.files
+
+.PHONY: ctags
+ctags:
+	rm -f tags
+	find . -name "*.[ch]" -exec ctags --append {} +
+
+.PHONY: TAGS
+TAGS:
+	rm -f TAGS
+	find . -name "*.[ch]" -exec etags --append {} +

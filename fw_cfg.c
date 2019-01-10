@@ -217,7 +217,7 @@ static void boot_pvh_from_fw_cfg(void)
 	start_info.magic = XEN_HVM_START_MAGIC_VALUE;
 	start_info.version = 1;
 	start_info.flags = 0;
-	start_info.nr_modules = 1;
+	start_info.nr_modules = 0;
 	start_info.reserved = 0;
 
 	fw_cfg_select(FW_CFG_CMDLINE_SIZE);
@@ -227,11 +227,22 @@ static void boot_pvh_from_fw_cfg(void)
 			  args.cmdline_size);
 	start_info.cmdline_paddr = (uintptr_t)args.cmdline_addr;
 
-	/* Use this field for pvhboot. Not used by pvhboot otherwise */
-	fw_cfg_read_entry(FW_CFG_KERNEL_DATA, &ramdisk_mod,
-			  sizeof(ramdisk_mod));
-	ramdisk_mod.cmdline_paddr = (uintptr_t)&ramdisk_mod;
-	start_info.modlist_paddr = (uintptr_t)&ramdisk_mod;
+	fw_cfg_select(FW_CFG_INITRD_SIZE);
+	args.initrd_size = fw_cfg_readl_le();
+	if (args.initrd_size) {
+		fw_cfg_select(FW_CFG_INITRD_SIZE);
+		args.initrd_addr = (void *)fw_cfg_readl_le();
+
+		fw_cfg_read_entry(FW_CFG_INITRD_DATA, args.initrd_addr,
+			  args.initrd_size);
+
+		ramdisk_mod.paddr = (uintptr_t)args.initrd_addr;
+		ramdisk_mod.size = (uintptr_t)args.initrd_size;
+
+		/* The first module is always ramdisk. */
+		start_info.modlist_paddr = (uintptr_t)&ramdisk_mod;
+		start_info.nr_modules = 1;
+	}
 
 	pvh_e820_setup();
 

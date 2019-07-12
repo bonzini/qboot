@@ -19,7 +19,7 @@ static void set_realmode_int(int vec, void *p)
 static void setup_idt(void)
 {
 	int i;
-	for (i = 0; i < 0x1f; i++)
+	for (i = 0; i < 0x100; i++)
 		set_realmode_int(i, bios_intfake);
 	for (i = 8; i < 16; i++)
 		set_realmode_int(i, bios_irq);

@@ -99,7 +99,7 @@ void setup_hw(void)
 	const int bdf = 0;
 	const uint8_t *bios_start = (void *)((uintptr_t)&stext + 0xfff00000);
 	const uint8_t *init_start = (void *)((uintptr_t)&sinit + 0xfff00000);
-	volatile uint8_t *rom_check = &stext;
+	static volatile uint8_t rom_check;
 	int rom_check_value;
 	int pambase;
 
@@ -116,9 +116,9 @@ void setup_hw(void)
 		panic();
 
 	// Make ram from 0xc0000-0xf0000 read-write
-	rom_check_value = *rom_check;
-	*rom_check = rom_check_value + 1;
-	if (*rom_check == rom_check_value)
+	rom_check_value = rom_check;
+	rom_check = rom_check_value + 1;
+	if (rom_check == rom_check_value)
 		setup_pam(bdf, pambase);
 
 	// Shadow BIOS; we're still running from 0xffff0000

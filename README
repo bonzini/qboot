@@ -1,6 +1,6 @@
 A simple x86 firmware that can boot Linux.
 
-Most of QEMU's 500-700 ms startup time is spent:
+Most of QEMU's startup time is spent:
 
 * in the dynamic linker.  This can be reduced by 150 ms simply by
   compiling a stripped down QEMU:
@@ -17,10 +17,8 @@ Most of QEMU's 500-700 ms startup time is spent:
 
 * in the BIOS.  qboot saves another 150 ms.
 
-* in fw_cfg.  qboot can use the new DMA interface to fw_cfg from QEMU 2.7+.
-  Alternatively, kernel and initrd can be put in a CoreBoot cbfs image
-  stored in flash.  However, flash has a limit of 8 MB.  In either case
-  350 ms are saved, bringing the startup time down to 60 ms.
+* until QEMU 2.7+, in fw_cfg.  qboot uses the DMA interface which is pretty
+  much instantaneous.
 
 Compile qboot
 =============
@@ -39,26 +37,12 @@ The result will be a 64K file named bios.bin.
 Usage
 =====
 
-fw_cfg based example:
-
     $ qemu-kvm -bios bios.bin \
       -kernel /boot/vmlinuz-4.0.3-300.fc22.x86_64 \
       -serial mon:stdio -append 'console=ttyS0,115200,8n1'
-
-cbfs-based example (pflash isn't the definitive interface though):
-
-    $ dd if=/dev/zero of=boot.bin bs=4096 count=1
-    $ cbfstool cbfs.rom create -s 8128k -B boot.bin  -m x86 -o 0x1000
-    $ cbfstool cbfs.rom add -f /boot/vmlinuz-4.0.3-300.fc22.x86_64 -n vmlinuz -t raw
-    $ echo 'console=ttyS0,115200,8n1' > cmdline
-    $ cbfstool cbfs.rom add -f cmdline -n cmdline -t raw
-    $ qemu-kvm -drive if=pflash,file=bios.bin,readonly=on \
-        -drive if=pflash,file=cbfs.rom,readonly=on \
-        -serial mon:stdio
 
 TODO
 ====
 
 * SMBIOS tables
 * Add the possibility to configure out PIC and PCI bridge initialization
-* Possibly drop cbfs support, superseded by fw_cfg DMA

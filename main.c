@@ -77,17 +77,6 @@ static void extract_e820(void)
 	e820_seg = ((uintptr_t) e820) >> 4;
 }
 
-static bool detect_cbfs_and_boot(void)
-{
-	size_t sz;
-	void *base = pflash_base(1, &sz);
-
-	if (!base)
-		return false;
-
-	return boot_from_cbfs(base, sz);
-}
-
 int __attribute__ ((section (".text.startup"))) main(void)
 {
 #ifdef BENCHMARK_HACK
@@ -95,8 +84,9 @@ int __attribute__ ((section (".text.startup"))) main(void)
 #endif
 	setup_hw();
 
-	// Now go to the F-segment: we need to move away from flash area
-	// in order to probe CBFS!
+	// Only the 16-bit trampoline for vmlinuz and the 16-bit interrupt
+	// handlers need to run from the F-segment, but keep things simple
+	// and jump there.  From this point we can modify global variables.
 	asm("ljmp $0x8, $1f; 1:");
 
 	have_mmconfig = setup_mmconfig();
@@ -106,7 +96,6 @@ int __attribute__ ((section (".text.startup"))) main(void)
 	extract_acpi();
 	extract_e820();
 	// extract_smbios();
-	if (!detect_cbfs_and_boot())
-		boot_from_fwcfg();
+	boot_from_fwcfg();
 	panic();
 }

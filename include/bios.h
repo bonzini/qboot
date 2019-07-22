@@ -43,7 +43,6 @@ extern void setup_hw(void);
 extern bool setup_mmconfig(void);
 extern void extract_acpi(void);
 extern void boot_from_fwcfg(void);
-extern bool boot_from_cbfs(void *base, size_t sz);
 
 extern uint16_t e820_seg;
 extern uint32_t lowmem;

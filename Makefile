@@ -1,5 +1,5 @@
 obj-y = code16.o entry.o main.o string.o printf.o cstart.o fw_cfg.o
-obj-y += linuxboot.o malloc.o pflash.o tables.o hwsetup.o pci.o
+obj-y += linuxboot.o malloc.o pflash.o tables.o hwsetup.o pci.o code32seg.o
 
 all-y = bios.bin
 all: $(all-y)
@@ -16,13 +16,15 @@ BIOS_CFLAGS += -mstringop-strategy=rep_byte -minline-all-stringops
 BIOS_CFLAGS += -Iinclude
 BIOS_CFLAGS += -fno-pic
 
+code32seg.o-cflags = -fno-jump-tables
+
 dummy := $(shell mkdir -p .deps)
 autodepend-flags = -MMD -MF .deps/cc-$(patsubst %/,%,$(dir $*))-$(notdir $*).d
 -include .deps/*.d
 
 .PRECIOUS: %.o
 %.o: %.c
-	$(CC) $(CFLAGS) $(BIOS_CFLAGS) -c -s $< -o $@
+	$(CC) $(CFLAGS) $(BIOS_CFLAGS) $($@-cflags) -c -s $< -o $@
 %.o: %.S
 	$(CC) $(CFLAGS) $(BIOS_CFLAGS) -c -s $< -o $@
 

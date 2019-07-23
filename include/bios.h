@@ -25,18 +25,43 @@ struct biosregs {
 	uint32_t			ds;
 	uint32_t			es;
 	uint32_t			fs;
-	uint32_t			eip;
+	uint16_t			ip;
+	uint16_t			cs;
+	uint16_t			eflags;
+} __attribute__((packed));
+
+/*
+ * BIOS32 is called via a far call, so eflags is pushed by our
+ * entry point and lies below CS:EIP.  We do not include CS:EIP
+ * at all in this struct.
+ */
+struct bios32regs {
+	uint32_t			eax;
+	uint32_t			ebx;
+	uint32_t			ecx;
+	uint32_t			edx;
+	uint32_t			esp;
+	uint32_t			ebp;
+	uint32_t			esi;
+	uint32_t			edi;
+	uint32_t			ds;
+	uint32_t			es;
+	uint32_t			fs;
 	uint32_t			eflags;
-};
+} __attribute__((packed));
 
 extern bioscall void int10_handler(struct biosregs *regs);
 extern bioscall void int15_handler(struct biosregs *regs);
 extern bioscall void e820_query_map(struct biosregs *regs);
+extern bioscall void pcibios_handler(struct bios32regs *regs);
 
 extern void bios_intfake(void);
 extern void bios_irq(void);
 extern void bios_int10(void);
 extern void bios_int15(void);
+extern void bios32_entry(void);
+
+extern uint32_t pic_base(void);
 
 extern void setup_pci(void);
 extern void setup_hw(void);
@@ -44,6 +69,7 @@ extern bool setup_mmconfig(void);
 extern void extract_acpi(void);
 extern void boot_from_fwcfg(void);
 
+extern uint8_t max_bus;
 extern uint16_t e820_seg;
 extern uint32_t lowmem;
 

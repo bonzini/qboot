@@ -91,3 +91,48 @@ ENTRY(bios_int15)
 
 	IRET
 ENTRY_END(bios_int15)
+
+	.code32
+ENTRY(pcibios_entry)
+	clc
+	pushfl
+	SAVE_BIOSREGS
+
+	movl	%esp, %eax
+	call	pcibios_handler
+
+	RESTORE_BIOSREGS
+	popfl
+	lretl
+ENTRY_END(pcibios_entry)
+
+ENTRY(bios32_entry)
+	pushfl
+	testl	%ebx, %ebx	   /* BIOS32 service directory? */
+	jnz	2f
+	cmp	$0x49435024, %eax  /* "$PCI"? */
+	movb	$0x80, %al	   /* service not present */
+	jne	1f
+	xorl	%ebx, %ebx	   /* fill in base/length/entry */
+	movl	$(1 << 20), %ecx
+	movl	$pcibios_entry, %edx
+	movb	$0x00, %al	   /* service present */
+1:
+	popfl
+	lretl
+2:
+	movb	$0x81, %al	   /* unimplemented function */
+	popfl
+	lretl
+ENTRY_END(bios32_entry)
+
+ENTRY(pic_base)
+	call 1f
+2:
+	ret
+1:
+	popl	%eax
+	pushl	%eax
+	subl	$2b, %eax
+	ret			   /* return to 2b */
+ENTRY_END(pic_base)

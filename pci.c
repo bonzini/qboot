@@ -1,11 +1,13 @@
 #include "bios.h"
 #include "ioport.h"
 #include "pci.h"
+#include <string.h>
 
 static uint16_t addend;
-static uint8_t bus, max_bus, bridge_head;
+static uint8_t bus, bridge_head;
 static bool use_i440fx_routing;
 static int bridge_count;
+uint8_t max_bus;
 
 static void do_setup_pci_bus(void);
 
@@ -143,6 +145,21 @@ static void do_setup_pci_bus(void)
 	}
 }
 
+void setup_bios32(void)
+{
+	char *bios32 = malloc_fseg_align(16, 16);
+	void *bios32_entry_ = &bios32_entry;
+	int i;
+
+	memcpy(bios32, "_32_", 4);
+	memcpy(bios32 + 4, &bios32_entry_, 4);
+	bios32[8] = 0;
+	bios32[9] = 1;
+	memset(bios32 + 10, 0, 6);
+	for (i = 0; i <= 9; i++)
+		bios32[10] -= bios32[i];
+}
+
 void setup_pci(void)
 {
 	const int bdf = 0;
@@ -156,4 +173,5 @@ void setup_pci(void)
 		panic();
 
 	do_setup_pci_bus();
+	setup_bios32();
 }

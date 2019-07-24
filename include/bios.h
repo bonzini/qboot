@@ -64,7 +64,7 @@ extern void bios32_entry(void);
 extern uint32_t pic_base(void);
 
 extern void setup_pci(void);
-extern void setup_hw(void);
+extern bool setup_hw(void);
 extern bool setup_mmconfig(void);
 extern void extract_acpi(void);
 extern void boot_from_fwcfg(void);

@@ -79,10 +79,11 @@ static void extract_e820(void)
 
 int __attribute__ ((section (".text.startup"))) main(void)
 {
+	bool have_pci;
 #ifdef BENCHMARK_HACK
 	outb(FW_EXIT_PORT, FW_START);
 #endif
-	setup_hw();
+	have_pci = setup_hw();
 
 	// Only the 16-bit trampoline for vmlinuz and the 16-bit interrupt
 	// handlers need to run from the F-segment, but keep things simple
@@ -90,7 +91,9 @@ int __attribute__ ((section (".text.startup"))) main(void)
 	asm("ljmp $0x8, $1f; 1:");
 
 	have_mmconfig = setup_mmconfig();
-	setup_pci();
+	if (have_pci) {
+		setup_pci();
+	}
 	setup_idt();
 	fw_cfg_setup();
 	extract_acpi();

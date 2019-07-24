@@ -66,6 +66,7 @@ extern uint32_t pic_base(void);
 extern void setup_pci(void);
 extern bool setup_hw(void);
 extern bool setup_mmconfig(void);
+extern void setup_mptable(void);
 extern void extract_acpi(void);
 extern void boot_from_fwcfg(void);
 

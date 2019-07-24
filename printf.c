@@ -157,18 +157,17 @@ int vsnprintf(char *buf, int size, const char *fmt, va_list va)
 	}
     morefmt:
 	f = *fmt++;
-	do {
 	if (f == '%') {
 	    addchar(&s, '%');
-	    break;
+	    continue;
 	}
 	if (f == 'c') {
             addchar(&s, va_arg(va, int));
-	    break;
+	    continue;
 	}
 	if (f == '\0') {
 	    --fmt;
-	    break;
+	    continue;
 	}
 	if (f == '0') {
 	    props.pad = '0';
@@ -196,7 +195,7 @@ int vsnprintf(char *buf, int size, const char *fmt, va_list va)
 		panic();
 		break;
 	    }
-	    break;
+	    continue;
 	}
 	if (f == 'x') {
 	    switch (nlong) {
@@ -210,20 +209,18 @@ int vsnprintf(char *buf, int size, const char *fmt, va_list va)
 		panic();
 		break;
 	    }
-	    break;
+	    continue;
 	}
 	if (f == 'p') {
 	    print_str(&s, "0x", props);
 	    print_unsigned(&s, (unsigned long)va_arg(va, void *), 16, props);
-	    break;
+	    continue;
 	}
 	if (f == 's') {
 	    print_str(&s, va_arg(va, const char *), props);
-	    break;
+	    continue;
 	}
         addchar(&s, f);
-        break;
-	} while(0);
     }
     *s.buffer = 0;
     ++s.added;

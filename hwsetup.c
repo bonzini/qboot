@@ -94,7 +94,7 @@ void setup_pam(int bdf, int pambase)
 	pci_config_writeb(bdf, pambase, 0x30);
 }
 
-void setup_hw(void)
+bool setup_hw(void)
 {
 	const int bdf = 0;
 	const uint8_t *bios_start = (void *)((uintptr_t)&stext + 0xfff00000);
@@ -112,8 +112,9 @@ void setup_hw(void)
 		setup_ich9();
 		setup_ich9_pm();
 		pambase = Q35_HOST_BRIDGE_PAM0;
-	} else
-		panic();
+	} else {
+		return false;
+	}
 
 	// Make ram from 0xc0000-0xf0000 read-write
 	rom_check_value = rom_check;
@@ -126,6 +127,8 @@ void setup_hw(void)
 	memcpy(&sinit, init_start, &einit - &sinit);
 
 	setup_pic();
+
+	return true;
 }
 
 #define Q35_HOST_BRIDGE_PCIEXBAREN      1

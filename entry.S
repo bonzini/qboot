@@ -58,7 +58,7 @@ ENTRY(bios_intfake)
 	 * interrupt handler succeeded and then treat the return values in
 	 * registers as valid data.
 	 */
-	orl	$X86_EFLAGS_CF, 0x4(%esp)
+	orb	$X86_EFLAGS_CF, 0x4(%esp)
 
 	IRET
 ENTRY_END(bios_intfake)
@@ -67,6 +67,7 @@ ENTRY_END(bios_intfake)
  * int 10 - video - service
  */
 ENTRY(bios_int10)
+	andb	$~X86_EFLAGS_CF, 0x4(%esp)
 	SAVE_BIOSREGS
 
 	movl		%esp, %eax
@@ -76,13 +77,11 @@ ENTRY(bios_int10)
 
 	RESTORE_BIOSREGS
 
-	/* Clear CF to indicate success.  */
-	andl	$~X86_EFLAGS_CF, 0x4(%esp)
-
 	IRET
 ENTRY_END(bios_int10)
 
 ENTRY(bios_int15)
+	andb	$~X86_EFLAGS_CF, 0x4(%esp)
 	SAVE_BIOSREGS
 
 	movl	%esp, %eax

@@ -98,6 +98,7 @@ int __attribute__ ((section (".text.startup"))) main(void)
 	fw_cfg_setup();
 	extract_acpi();
 	extract_e820();
+	setup_mptable();
 	// extract_smbios();
 	boot_from_fwcfg();
 	panic();

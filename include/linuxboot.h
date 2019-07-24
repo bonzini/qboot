@@ -9,7 +9,7 @@ struct linuxboot_args {
 	uint32_t setup_size, kernel_size;
 
 	/* Input */
-        uint32_t cmdline_size, vmlinuz_size, initrd_size;
+	uint32_t cmdline_size, vmlinuz_size, initrd_size;
 	uint8_t header[8192];
 };
 

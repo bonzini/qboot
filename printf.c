@@ -221,8 +221,8 @@ int vsnprintf(char *buf, int size, const char *fmt, va_list va)
 	    print_str(&s, va_arg(va, const char *), props);
 	    break;
 	}
-    	addchar(&s, f);
-    	break;
+        addchar(&s, f);
+        break;
 	} while(0);
     }
     *s.buffer = 0;

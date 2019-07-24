@@ -104,7 +104,7 @@ void boot_bzimage(struct linuxboot_args *args)
 	    : :
 	    "b" (((uintptr_t) args->setup_addr) >> 4),
 	    "d" (args->cmdline_addr - args->setup_addr - 16));
-        panic();
+	panic();
 }
 
 /* BX = address of data block

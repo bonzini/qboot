@@ -46,18 +46,18 @@ void fw_cfg_setup(void)
 
 int filenamecmp(const char *a, const struct fw_cfg_file *f)
 {
-    int n = sizeof(f->name);
-    const char *b = f->name;
-    while (*a == *b) {
-        if (*a == '\0') {
-            break;
-        }
-        if (--n == 0) {
-            return *a;
-        }
-        ++a, ++b;
-    }
-    return *a - *b;
+	int n = sizeof(f->name);
+	const char *b = f->name;
+	while (*a == *b) {
+		if (*a == '\0') {
+			break;
+		}
+		if (--n == 0) {
+			return *a;
+		}
+		++a, ++b;
+	}
+	return *a - *b;
 }
 
 int fw_cfg_file_id(char *name)
@@ -89,9 +89,9 @@ void fw_cfg_read_file(int id, void *buf, int len)
 }
 
 struct fw_cfg_dma_descriptor {
-    uint32_t control;
-    uint32_t length;
-    uint64_t address;
+	uint32_t control;
+	uint32_t length;
+	uint64_t address;
 } __attribute__((packed));
 
 void fw_cfg_dma(int control, void *buf, int len)

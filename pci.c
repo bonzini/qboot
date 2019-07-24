@@ -70,7 +70,7 @@ static void do_setup_pci(uint32_t bdf, uint32_t id, uint8_t type)
 	uint8_t pin;
 
 	pin = pci_config_readb(bdf, PCI_INTERRUPT_PIN);
-        if (pin != 0)
+	if (pin != 0)
 		do_setup_pci_irq(bdf, pin);
 
 	if (type & PCI_HEADER_TYPE_BRIDGE) {
@@ -164,8 +164,8 @@ void setup_pci(void)
 {
 	const int bdf = 0;
 
-        uint32_t id = pci_config_readl(bdf, 0);
-        if (id == (PCI_VENDOR_ID_INTEL | (PCI_DEVICE_ID_INTEL_82441 << 16)))
+	uint32_t id = pci_config_readl(bdf, 0);
+	if (id == (PCI_VENDOR_ID_INTEL | (PCI_DEVICE_ID_INTEL_82441 << 16)))
 		use_i440fx_routing = true;
 	else if (id == (PCI_VENDOR_ID_INTEL | (PCI_DEVICE_ID_INTEL_Q35_MCH << 16)))
 		use_i440fx_routing = false;

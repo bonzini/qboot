@@ -25,7 +25,7 @@ static void setup_piix_pm(void)
 {
 	const int bdf = (1 << 3) | 3;
 
-    	pci_config_writel(bdf, PIIX_PMBASE, 0x601);
+	pci_config_writel(bdf, PIIX_PMBASE, 0x601);
 	pci_config_writeb(bdf, PIIX_PMREGMISC, 0x01);
 	pci_config_writel(bdf, PIIX_SMBHSTBASE, 0x701);
 	pci_config_writeb(bdf, PIIX_SMBHSTCFG, 0x09);
@@ -61,25 +61,25 @@ static void setup_ich9_pm(void)
 
 static void setup_pic(void)
 {
-    /* Send ICW1 (select OCW1 + will send ICW4) */
-    outb(0x20, 0x11);
-    outb(0xa0, 0x11);
-    /* Send ICW2 (base irqs: 0x08-0x0f for irq0-7, 0x70-0x77 for irq8-15) */
-    outb(0x21, 8);
-    outb(0xa1, 0x70);
-    /* Send ICW3 (cascaded pic ids) */
-    outb(0x21, 0x04);
-    outb(0xa1, 0x02);
-    /* Send ICW4 (enable 8086 mode) */
-    outb(0x21, 0x01);
-    outb(0xa1, 0x01);
-    /* Mask all irqs (except cascaded PIC2 irq) */
-    outb(0x21, ~(1 << 2));
-    outb(0xa1, ~0);
+	/* Send ICW1 (select OCW1 + will send ICW4) */
+	outb(0x20, 0x11);
+	outb(0xa0, 0x11);
+	/* Send ICW2 (base irqs: 0x08-0x0f for irq0-7, 0x70-0x77 for irq8-15) */
+	outb(0x21, 8);
+	outb(0xa1, 0x70);
+	/* Send ICW3 (cascaded pic ids) */
+	outb(0x21, 0x04);
+	outb(0xa1, 0x02);
+	/* Send ICW4 (enable 8086 mode) */
+	outb(0x21, 0x01);
+	outb(0xa1, 0x01);
+	/* Mask all irqs (except cascaded PIC2 irq) */
+	outb(0x21, ~(1 << 2));
+	outb(0xa1, ~0);
 
-    /* Set ELCR to IRQs 10 and 11 */
-    outb(0x4d0, 0);
-    outb(0x4d1, 0x0c);
+	/* Set ELCR to IRQs 10 and 11 */
+	outb(0x4d0, 0);
+	outb(0x4d1, 0x0c);
 }
 
 void setup_pam(int bdf, int pambase)
@@ -103,8 +103,8 @@ void setup_hw(void)
 	int rom_check_value;
 	int pambase;
 
-        uint32_t id = pci_config_readl(bdf, 0);
-        if (id == (PCI_VENDOR_ID_INTEL | (PCI_DEVICE_ID_INTEL_82441 << 16))) {
+	uint32_t id = pci_config_readl(bdf, 0);
+	if (id == (PCI_VENDOR_ID_INTEL | (PCI_DEVICE_ID_INTEL_82441 << 16))) {
 		setup_piix();
 		setup_piix_pm();
 		pambase = I440FX_PAM0;

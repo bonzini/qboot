@@ -57,7 +57,7 @@ bioscall void e820_query_map(struct biosregs *regs)
 		unsigned int i;
 		uint8_t *p;
 
-		start	= flat_to_off16(offsetof(struct e820map, map[ndx]));
+		start	= offsetof(struct e820map, map[ndx]);
 
 		p	= (void *) regs->edi;
 

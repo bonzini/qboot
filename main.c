@@ -5,7 +5,6 @@
 #include "string.h"
 #include "segment.h"
 #include "fw_cfg.h"
-#include "pflash.h"
 #include "pci.h"
 #include "benchmark.h"
 

@@ -21,6 +21,8 @@ static inline void *from_flat_ptr(void *p)
 
 #define FLAT_VAR(x)  (*(typeof(&(x))) from_flat_ptr(&(x)))
 
+#pragma GCC optimize("no-jump-tables")
+
 bioscall void pcibios_handler(struct bios32regs *args)
 {
 	switch (args->eax) {

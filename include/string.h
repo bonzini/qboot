@@ -2,6 +2,7 @@
 #define BIOS_STRING_H
 
 #include <stddef.h>
+#include <inttypes.h>
 
 unsigned long strlen(const char *buf);
 char *strcat(char *dest, const char *src);
@@ -12,6 +13,7 @@ char *strstr(const char *s1, const char *s2);
 int memcmp(const void *s1, const void *s2, size_t n);
 void *memmove(void *dest, const void *src, size_t n);
 void *memchr(const void *s, int c, size_t n);
+uint8_t csum8(uint8_t *buf, uint32_t len);
 
 static inline void *memset(void *s, int c, size_t n)
 {

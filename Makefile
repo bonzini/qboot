@@ -1,6 +1,6 @@
 obj-y = code16.o entry.o main.o string.o printf.o cstart.o fw_cfg.o
 obj-y += linuxboot.o malloc.o tables.o hwsetup.o pci.o code32seg.o
-obj-y += mptable.o
+obj-y += mptable.o smbios.o
 
 all-y = bios.bin
 all: $(all-y)

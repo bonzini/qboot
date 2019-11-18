@@ -107,13 +107,6 @@ static void do_ptr(char *dest, char *src, uint32_t offset, uint8_t size)
 	memcpy(q, &data.b, size);
 }
 
-static inline uint8_t csum8(uint8_t *buf, uint32_t len)
-{
-	uint32_t s = 0;
-	while (len-- > 0)
-		s += *buf++;
-	return s;
-}
 static void do_checksum(char *file, uint32_t offset, uint32_t start, uint32_t len)
 {
 	uint8_t *p;

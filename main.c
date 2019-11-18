@@ -7,6 +7,7 @@
 #include "fw_cfg.h"
 #include "pci.h"
 #include "benchmark.h"
+#include "smbios.h"
 
 static void set_realmode_int(int vec, void *p)
 {
@@ -98,7 +99,7 @@ int __attribute__ ((section (".text.startup"))) main(void)
 	extract_acpi();
 	extract_e820();
 	setup_mptable();
-	// extract_smbios();
+	extract_smbios();
 	boot_from_fwcfg();
 	panic();
 }

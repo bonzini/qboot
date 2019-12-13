@@ -30,9 +30,9 @@ Clone the source:
 Compile the qboot firmware (you may need to install the relevant build
 time dependancies):
 
-    $ make
+    $ meson build && ninja -C build
 
-The result will be a 64K file named bios.bin.
+The result will be a 64K file named bios.bin under the build/ directory.
 
 Usage
 =====

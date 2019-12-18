@@ -1,4 +1,4 @@
-#include <inttypes.h>
+#include <stdint.h>
 #include "smbios.h"
 #include "string.h"
 #include "fw_cfg.h"

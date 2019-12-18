@@ -1,7 +1,7 @@
 #ifndef BIOS_H_
 #define BIOS_H_
 
-#include <inttypes.h>
+#include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 

@@ -2,7 +2,7 @@
 #define BIOS_STRING_H
 
 #include <stddef.h>
-#include <inttypes.h>
+#include <stdint.h>
 
 unsigned long strlen(const char *buf);
 char *strcat(char *dest, const char *src);

@@ -1,7 +1,7 @@
 #include "bios.h"
 #include "ioport.h"
 #include "pci.h"
-#include <string.h>
+#include "string.h"
 
 static uint16_t addend;
 static uint8_t bus, bridge_head;

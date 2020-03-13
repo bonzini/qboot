@@ -7,6 +7,7 @@ Most of QEMU's startup time is spent:
 * in the dynamic linker.  This can be reduced by 150 ms simply by
   compiling a stripped down QEMU:
 
+```
     ./configure --disable-libssh2 --disable-tcmalloc --disable-glusterfs \
         --disable-seccomp --disable-{bzip2,snappy,lzo} --disable-usb-redir \
         --disable-libusb --disable-smartcard-nss --disable-libnfs  \
@@ -16,13 +17,14 @@ Most of QEMU's startup time is spent:
         --disable-fdt --disable-curl --disable-curses --disable-sdl \
         --disable-gtk  --disable-tpm --disable-vte --disable-vnc  \
         --disable-xen --disable-opengl --target-list=x86_64-softmmu
+```
 
 * in the BIOS.  qboot saves another 150 ms.
 
 * until QEMU 2.7+, in `fw_cfg`.  qboot uses the DMA interface which is pretty
   much instantaneous.
 
-Compile qboot
+Compile `qboot`
 =============
 
 Clone the source:

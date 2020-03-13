@@ -1,4 +1,4 @@
-![Build status](./workflows/bios-build/badge.svg)
+![Build status](../../workflows/bios-build/badge.svg)
 
 A simple x86 firmware that can boot Linux.
 

@@ -1,8 +1,14 @@
 CC	?= $(CROSS)gcc
 AS	?= $(CROSS)gcc
 OBJCOPY	?= $(CROSS)objcopy
+O	?= build
 
-CFLAGS	:= \
+all: $O/bios.bin
+ROMSIZE = 65536
+
+$O: ; mkdir -p $@
+
+CFLAGS	= \
 	-W \
 	-Wall \
 	-m32 \
@@ -15,30 +21,19 @@ CFLAGS	:= \
 	-minline-all-stringops \
 	-fno-pic \
 	-Iinclude \
+	-MT $@ \
+	-MMD -MP \
+	-MF $O/$*.d \
 
-ASFLAGS := $(CFLAGS)
+ASFLAGS = $(CFLAGS)
 
-LDFLAGS	:= \
+LDFLAGS	= \
 	-nostdlib \
 	-m32 \
 	-Wl,--build-id=none \
 	-Wl,-Tflat.lds \
 
-all: bios.bin
-
-%.bin: %.elf
-	$(OBJCOPY) \
-		-O binary \
-		-j .text \
-		-j .data \
-		-j .rodata \
-		-j .bss \
-		-j .data \
-		-j .init \
-		$< \
-		$@
-
-OBJS := \
+OBJS = \
 	code16.o \
 	code32seg.o \
 	cstart.o \
@@ -55,8 +50,31 @@ OBJS := \
 	smbios.o \
 	tables.o \
 
-bios.elf: $(OBJS)
+$O/bios.elf: $(addprefix $O/,$(OBJS))
 	$(CC) $(LDFLAGS) -o $@ $^
 
+$O/%.bin: $O/%.elf
+	$(OBJCOPY) \
+		-O binary \
+		-j .text \
+		-j .rodata \
+		-j .data \
+		-j .bss \
+		-j .init \
+		$< \
+		"$@.tmp"
+	@if [ `stat -c '%s' "$@.tmp"` != $(ROMSIZE) ]; then \
+		echo >&2 '$@ != $(ROMSIZE) bytes!' ; \
+		exit 1 ; \
+	fi
+	mv "$@.tmp" "$@"
+
+$O/%.o: %.c | $O
+	$(CC) $(CFLAGS) -c -o $@ $<
+$O/%.o: %.S | $O
+	$(CC) $(ASFLAGS) -c -o $@ $<
+
 clean:
-	$(RM) *.o bios.bin bios.bin.elf .*.d
+	$(RM) $O/*.o $O/bios.bin $O/bios.bin.elf $O/*.d
+
+-include $O/*.d

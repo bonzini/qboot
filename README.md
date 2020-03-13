@@ -1,3 +1,5 @@
+![Build status](./workflows/bios-build/badge.svg)
+
 A simple x86 firmware that can boot Linux.
 
 Most of QEMU's startup time is spent:
@@ -17,7 +19,7 @@ Most of QEMU's startup time is spent:
 
 * in the BIOS.  qboot saves another 150 ms.
 
-* until QEMU 2.7+, in fw_cfg.  qboot uses the DMA interface which is pretty
+* until QEMU 2.7+, in `fw_cfg`.  qboot uses the DMA interface which is pretty
   much instantaneous.
 
 Compile qboot

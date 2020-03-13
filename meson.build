@@ -1,4 +1,4 @@
-project('qboot', 'c')
+project('qboot', 'c', meson_version: '>=0.49.0')
 
 cc = meson.get_compiler('c')
 objcopy = find_program('objcopy')

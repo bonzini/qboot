@@ -9,3 +9,8 @@ jobs:
     - uses: actions/checkout@v2
     - name: make
       run: make
+    - name: Upload bios.bin
+      uses: actions/upload-artifact@v1
+      with:
+        name: bios.bin
+        path: build/bios.bin

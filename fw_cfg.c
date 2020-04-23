@@ -230,7 +230,7 @@ static void boot_pvh_from_fw_cfg(void)
 	fw_cfg_select(FW_CFG_INITRD_SIZE);
 	args.initrd_size = fw_cfg_readl_le();
 	if (args.initrd_size) {
-		fw_cfg_select(FW_CFG_INITRD_SIZE);
+		fw_cfg_select(FW_CFG_INITRD_ADDR);
 		args.initrd_addr = (void *)fw_cfg_readl_le();
 
 		fw_cfg_read_entry(FW_CFG_INITRD_DATA, args.initrd_addr,

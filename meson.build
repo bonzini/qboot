@@ -18,6 +18,7 @@ c_args = [
 link_args = ['-nostdlib', '-m32']
 link_args += cc.get_supported_link_arguments('-Wl,--build-id=none')
 link_args += '-Wl,-T' + meson.current_source_dir() / 'flat.lds'
+link_args += cc.get_supported_link_arguments(['-no-pie'])
 
 elf = executable(
   'bios.bin.elf',

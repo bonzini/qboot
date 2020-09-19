@@ -2,6 +2,7 @@
 #include "assembly.h"
 .section .init
 ENTRY(pm_entry)
+	cli
 	xor %ax, %ax
 	mov %ax, %ds
 	mov %ax, %es

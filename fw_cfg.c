@@ -269,6 +269,7 @@ void boot_from_fwcfg(void)
 {
 	struct linuxboot_args args;
 	uint32_t kernel_size;
+	enum { HEADER_PEEK_SIZE = 8192 };
 
 	fw_cfg_select(FW_CFG_CMDLINE_SIZE);
 	args.cmdline_size = fw_cfg_readl_le();
@@ -282,15 +283,17 @@ void boot_from_fwcfg(void)
 	kernel_size = fw_cfg_readl_le();
 	fw_cfg_select(FW_CFG_SETUP_SIZE);
 	args.vmlinuz_size = kernel_size + fw_cfg_readl_le();
+	fw_cfg_select(FW_CFG_SETUP_ADDR);
+	args.setup_addr = (void *)fw_cfg_readl_le();
 
 	if (!args.vmlinuz_size)
 		return;
 
 	fw_cfg_select(FW_CFG_SETUP_DATA);
-	fw_cfg_read(args.header, sizeof(args.header));
+	fw_cfg_read(args.setup_addr, HEADER_PEEK_SIZE);
 
 	if (!parse_bzimage(&args)) {
-		uint8_t *header = args.header;
+		uint8_t *header = args.setup_addr;
 
 		if (ldl_p(header) == 0x464c457f)  /* ELF magic */
 			boot_pvh_from_fw_cfg();
@@ -298,9 +301,9 @@ void boot_from_fwcfg(void)
 	}
 
 	/* SETUP_DATA already selected */
-	if (args.setup_size > sizeof(args.header))
-		fw_cfg_read(args.setup_addr + sizeof(args.header),
-			    args.setup_size - sizeof(args.header));
+	if (args.setup_size > HEADER_PEEK_SIZE)
+		fw_cfg_read(args.setup_addr + HEADER_PEEK_SIZE,
+			    args.setup_size - HEADER_PEEK_SIZE);
 
 	fw_cfg_select(FW_CFG_KERNEL_DATA);
 	fw_cfg_read_entry(FW_CFG_KERNEL_DATA, args.kernel_addr, kernel_size);

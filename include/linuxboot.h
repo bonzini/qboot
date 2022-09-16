@@ -10,7 +10,6 @@ struct linuxboot_args {
 
 	/* Input */
 	uint32_t cmdline_size, vmlinuz_size, initrd_size;
-	uint8_t header[8192];
 };
 
 bool parse_bzimage(struct linuxboot_args *args);

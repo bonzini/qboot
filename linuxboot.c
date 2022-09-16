@@ -11,7 +11,7 @@ struct hvm_start_info start_info = {0};
 
 bool parse_bzimage(struct linuxboot_args *args)
 {
-	uint8_t *header = args->header;
+	uint8_t *header = args->setup_addr;
 
 	uint32_t real_addr, cmdline_addr, prot_addr, initrd_addr;
 	uint32_t setup_size;
@@ -84,7 +84,6 @@ bool parse_bzimage(struct linuxboot_args *args)
 	args->setup_size = (setup_size+1)*512;
 	args->kernel_size = args->vmlinuz_size - setup_size;
 	args->initrd_addr = (void *)initrd_addr;
-	args->setup_addr = (void *)real_addr;
 	args->kernel_addr = (void *)prot_addr;
 	args->cmdline_addr = (void *)cmdline_addr;
 	return true;
@@ -92,7 +91,6 @@ bool parse_bzimage(struct linuxboot_args *args)
 
 void boot_bzimage(struct linuxboot_args *args)
 {
-	memcpy(args->setup_addr, args->header, sizeof(args->header));
 #ifdef BENCHMARK_HACK
 	/* Exit just before getting to vmlinuz, so that it is easy
 	 * to time/profile the firmware.
